@@ -31,7 +31,8 @@ public class SpringSecurity {
                         authorize.requestMatchers("/register/**").permitAll()
                                 .requestMatchers("/index", "/", "/inicio").permitAll()
                                 .requestMatchers("/users").hasRole("ADMIN")
-                                .requestMatchers("/crud/noticias", "/crud/noticias/insertar", "/crud/noticias/modificar/**", "/noticia/**", "/comentario/insertar", "/crud/noticias/eliminar/**", "/megusta/**").authenticated()
+                                .requestMatchers("/crud/noticias", "/crud/noticias/insertar", "/crud/noticias/modificar/**", "/noticia/**",
+                                        "/comentario/insertar", "/crud/noticias/eliminar/**", "/megusta/**", "/explorar").authenticated()
                                 .requestMatchers("/file/download/**") . permitAll()
                 ).formLogin(
                         form -> form
