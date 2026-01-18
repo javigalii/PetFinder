@@ -1,14 +1,21 @@
 package edu.vedoque.seguridadbase.dto;
 
-import edu.vedoque.seguridadbase.entity.Animal;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class AnimalDto {
-    private Animal animal; // El objeto animal completo
-    private boolean liked; // true si el corazón debe salir rojo
+    private Long id;
+    private String nombre;
+    private String tipo;
+    private String raza;
+    private String imagenUrl;
+
+    // --- CAMPOS QUE FALTABAN ---
+    private int edad;
+    private String localizacion;
+    private String sexo;
+    private boolean castrado;
+
+    // El campo especial para el corazón
+    private boolean likedByCurrentUser;
 }

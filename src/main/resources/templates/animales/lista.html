@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Adopta un Amigo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Estilo para que todas las fotos midan lo mismo y no rompan el diseño */
+        .card-img-top {
+            height: 250px;
+            object-fit: cover; /* Recorta la imagen para llenar el hueco sin deformar */
+        }
+
+        /* Botón de Like flotante (círculo blanco) */
+        .btn-like {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-like:hover {
+            transform: scale(1.1);
+        }
+
+        /* Badges personalizados */
+        .badge-raza {
+            background-color: #555;
+            font-weight: normal;
+        }
+        .badge-castrado {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        .badge-sexo-macho {
+            background-color: #cfe2ff;
+            color: #084298;
+        }
+        .badge-sexo-hembra {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="/"><i class="fa-solid fa-paw"></i> AdoptaApp</a>
+        <div class="d-flex">
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+
+    <div class="d-flex justify-content-center mb-4 gap-2">
+        <a href="/animales/"
+           class="btn"
+           th:classappend="${filtroActual == null} ? 'btn-primary' : 'btn-outline-primary'">
+            Todos
+        </a>
+        <a href="/animales/?tipo=PERRO"
+           class="btn"
+           th:classappend="${filtroActual == 'PERRO'} ? 'btn-primary' : 'btn-outline-primary'">
+            <i class="fa-solid fa-dog"></i> Perros
+        </a>
+        <a href="/animales/?tipo=GATO"
+           class="btn"
+           th:classappend="${filtroActual == 'GATO'} ? 'btn-primary' : 'btn-outline-primary'">
+            <i class="fa-solid fa-cat"></i> Gatos
+        </a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+
+        <div class="col" th:each="animal : ${animales}">
+            <div class="card h-100 shadow-sm border-0 overflow-hidden">
+
+                <div class="position-relative">
+                    <img th:src="${animal.imagenUrl}" class="card-img-top" alt="Foto animal">
+
+                    <a th:href="@{/animales/megusta/{id}(id=${animal.id})}" class="btn-like">
+                        <i th:classappend="${animal.likedByCurrentUser} ? 'fa-solid text-danger' : 'fa-regular text-secondary'"
+                           class="fa-heart fa-lg"></i>
+                    </a>
+                </div>
+
+                <div class="card-body">
+                    <span class="badge rounded-pill badge-raza mb-2">
+                        <i class="fa-solid fa-tag"></i> <span th:text="${animal.raza}">Golden Retriever</span>
+                    </span>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h4 class="card-title fw-bold mb-0" th:text="${animal.nombre}">Max</h4>
+                        <span class="border rounded px-2 py-1 small fw-bold">
+                            <span th:text="${animal.edad}">2</span> años
+                        </span>
+                    </div>
+
+                    <p class="text-secondary small mb-3">
+                        <i class="fa-solid fa-location-dot text-danger"></i>
+                        <span th:text="${animal.localizacion}">Madrid</span>
+                    </p>
+
+                    <div class="d-flex gap-2 mb-3">
+                        <span class="badge"
+                              th:text="${animal.sexo}"
+                              th:classappend="${animal.sexo == 'Macho'} ? 'badge-sexo-macho' : 'badge-sexo-hembra'">
+                            Macho
+                        </span>
+
+                        <span class="badge badge-castrado" th:if="${animal.castrado}">
+                            Castrado
+                        </span>
+                    </div>
+
+                    <a th:href="@{/animales/detalle/{id}(id=${animal.id})}" class="btn btn-outline-primary w-100 rounded-pill">
+                        Ver Detalles
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

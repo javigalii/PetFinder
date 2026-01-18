@@ -29,10 +29,10 @@ public class SpringSecurity {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((authorize) ->
                         authorize.requestMatchers("/register/**").permitAll()
-                                .requestMatchers("/index", "/", "/inicio").permitAll()
+                                .requestMatchers("/index", "/", "/inicio", "animales/lista", "/animales/detalle/**").permitAll()
                                 .requestMatchers("/users").hasRole("ADMIN")
                                 .requestMatchers("/crud/noticias", "/crud/noticias/insertar", "/crud/noticias/modificar/**", "/noticia/**",
-                                        "/comentario/insertar", "/crud/noticias/eliminar/**", "/megusta/**", "/explorar").authenticated()
+                                        "/comentario/insertar", "/crud/noticias/eliminar/**", "/megusta/**", "/animales/lista","/animales/megusta/**", "animales/favoritos").authenticated()
                                 .requestMatchers("/file/download/**") . permitAll()
                 ).formLogin(
                         form -> form
