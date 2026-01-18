@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${animal.nombre} + ' - Petfinder'">Detalle Animal - Petfinder</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        :root {
+            --primary-orange: #ff5400;
+            --dark-bg: #1a1d29;
+            --card-bg: #23263a;
+            --light-gray: #f5f6f7;
+            --hover-orange: #ff6d1f;
+            --text-gray: #9ca3af;
+            --border-color: #2d3142;
+        }
+
+        body {
+            background: linear-gradient(180deg, #13151f 0%, #1a1d29 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: #e5e7eb;
+            min-height: 100vh;
+        }
+
+        /* === NAVBAR === */
+        .navbar-dark-custom {
+            background: #13151f;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-orange) !important;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-brand:hover {
+            color: var(--hover-orange) !important;
+        }
+
+        .nav-link {
+            color: var(--text-gray) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+        }
+
+        .nav-link.active {
+            color: var(--primary-orange) !important;
+        }
+
+        /* === BREADCRUMB === */
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 2rem;
+        }
+
+        .breadcrumb-item {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        .breadcrumb-item a {
+            color: var(--text-gray);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .breadcrumb-item a:hover {
+            color: var(--primary-orange);
+        }
+
+        .breadcrumb-item.active {
+            color: white;
+        }
+
+        .breadcrumb-item + .breadcrumb-item::before {
+            color: var(--text-gray);
+        }
+
+        /* === IMAGEN PRINCIPAL === */
+        .main-image-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .main-image {
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+        }
+
+        .image-overlay-badge {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: var(--primary-orange);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* === INFO CARD === */
+        .info-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            position: sticky;
+            top: 20px;
+        }
+
+        .animal-title {
+            color: white;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .animal-location {
+            color: var(--text-gray);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 1.5rem;
+        }
+
+        .animal-location i {
+            color: var(--primary-orange);
+        }
+
+        /* === STATS === */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .stat-label {
+            color: var(--text-gray);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        /* === BADGES === */
+        .badges-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .badge-custom {
+            font-size: 0.85rem;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: 1px solid transparent;
+        }
+
+        .badge-male {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .badge-female {
+            background: rgba(236, 72, 153, 0.15);
+            color: #f472b6;
+            border-color: rgba(236, 72, 153, 0.3);
+        }
+
+        .badge-neutered {
+            background: rgba(34, 197, 94, 0.15);
+            color: #4ade80;
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        /* === BOTONES PRINCIPALES === */
+        .btn-like-large {
+            background: rgba(239, 68, 68, 0.15);
+            border: 2px solid #ef4444;
+            color: #ef4444;
+            font-weight: 700;
+            padding: 1rem;
+            border-radius: 10px;
+            transition: all 0.2s;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .btn-like-large:hover {
+            background: rgba(239, 68, 68, 0.25);
+            border-color: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .btn-like-large.active {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-like-large.active:hover {
+            background: #dc2626;
+        }
+
+        /* === BOTONES DE COMPARTIR === */
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-share {
+            flex: 1;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+            color: white;
+        }
+
+        .btn-whatsapp:hover {
+            background: #20BA5A;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+        }
+
+        .btn-email {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: #e5e7eb;
+        }
+
+        .btn-email:hover {
+            background: #2d3142;
+            border-color: var(--primary-orange);
+            transform: translateY(-2px);
+        }
+
+        /* === SECCIÓN DE DESCRIPCIÓN === */
+        .description-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary-orange);
+        }
+
+        .description-text {
+            color: #d1d5db;
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        /* === TARJETA DE USUARIO === */
+        .user-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 1rem;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-orange);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .user-info h4 {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-info p {
+            color: var(--text-gray);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        .user-details {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .user-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #d1d5db;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .user-detail-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .user-detail-item i {
+            color: var(--primary-orange);
+            width: 20px;
+        }
+
+        .btn-contact {
+            background: var(--primary-orange);
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: 0.85rem 1.5rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .btn-contact:hover {
+            background: var(--hover-orange);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 84, 0, 0.3);
+        }
+
+        /* === DIVIDER === */
+        .divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 1.5rem 0;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 991.98px) {
+            .main-image {
+                height: 350px;
+            }
+
+            .animal-title {
+                font-size: 1.5rem;
+            }
+
+            .info-card {
+                position: relative;
+                top: 0;
+                margin-top: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .share-buttons {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* === CLASE OCULTO === */
+        .oculto {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR (MISMO QUE INDEX) -->
+<nav class="navbar navbar-expand-lg navbar-dark-custom sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="bi bi-heart-fill"></i>
+            Petfinder
+        </a>
+
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" href="/home">Explorar</a></li>
+                <li class="nav-item"><a class="nav-link" href="/noticias">Blog</a></li>
+                <li class="nav-item"><a class="nav-link" href="/mensajes">Mensajes</a></li>
+                <li class="nav-item"><a class="nav-link" href="/perfil">Mi Perfil</a></li>
+                <li class="nav-item"><a class="nav-link" href="/adopcion">Dar en Adopción</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-4">
+
+    <!-- BREADCRUMB -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="/home">Explorar</a></li>
+            <li class="breadcrumb-item active" aria-current="page" th:text="${animal.nombre}">Nombre Animal</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- COLUMNA IZQUIERDA: IMAGEN Y DESCRIPCIÓN -->
+        <div class="col-lg-8">
+            
+            <!-- IMAGEN PRINCIPAL -->
+            <div class="main-image-container mb-4">
+                <img th:src="${'/file/download/' + animal.imagen}" class="main-image" alt="Foto del animal">
+                <span class="image-overlay-badge">
+                    <i class="bi bi-tag-fill me-2"></i><span th:text="${animal.raza}">Raza</span>
+                </span>
+            </div>
+
+            <!-- DESCRIPCIÓN -->
+            <div class="description-section">
+                <h2 class="section-title">
+                    <i class="bi bi-file-text-fill"></i>
+                    Sobre mí
+                </h2>
+                <p class="description-text" th:text="${animal.descripcion ?: 'Este adorable compañero está buscando un hogar lleno de amor. Es juguetón, cariñoso y se lleva bien con otros animales. ¡Dale una oportunidad de ser parte de tu familia!'}">
+                    Descripción del animal...
+                </p>
+            </div>
+
+            <!-- INFORMACIÓN DEL USUARIO -->
+            <div class="user-card">
+                <h3 class="section-title mb-3">
+                    <i class="bi bi-person-circle"></i>
+                    Publicado por
+                </h3>
+
+                <div class="user-header">
+                    <div class="user-avatar" th:text="${#strings.substring(usuario.nombre, 0, 1)}">U</div>
+                    <div class="user-info">
+                        <h4 th:text="${usuario.nombre}">Nombre Usuario</h4>
+                        <p><i class="bi bi-geo-alt-fill me-1"></i><span th:text="${usuario.ciudad}">Ciudad</span></p>
+                    </div>
+                </div>
+
+                <div class="user-details">
+                    <div class="user-detail-item">
+                        <i class="bi bi-calendar-check-fill"></i>
+                        <span>Miembro desde <span th:text="${#dates.format(usuario.fechaRegistro, 'MMMM yyyy')}">enero 2024</span></span>
+                    </div>
+                    <div class="user-detail-item">
+                        <i class="bi bi-star-fill"></i>
+                        <span>Usuario verificado</span>
+                    </div>
+                </div>
+
+                <p style="color: var(--text-gray); font-size: 0.85rem; margin-bottom: 1rem; line-height: 1.5;">
+                    ¿Te interesa este compañero? Envía un mensaje para obtener más información y coordinar la adopción.
+                </p>
+
+                <a th:href="@{'/mensajes/nuevo?destinatario=' + ${usuario.id}}" class="btn btn-contact">
+                    <i class="bi bi-chat-dots-fill me-2"></i>Enviar mensaje
+                </a>
+            </div>
+
+        </div>
+
+        <!-- COLUMNA DERECHA: INFO Y ACCIONES -->
+        <div class="col-lg-4">
+            <div class="info-card">
+                
+                <!-- TÍTULO Y UBICACIÓN -->
+                <h1 class="animal-title" th:text="${animal.nombre}">Nombre del Animal</h1>
+                <div class="animal-location">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <span th:text="${animal.ciudad}">Ciudad</span>
+                </div>
+
+                <!-- ESTADÍSTICAS -->
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Edad</div>
+                        <div class="stat-value" th:text="${animal.edad} + ' años'">0 años</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Peso</div>
+                        <div class="stat-value" th:text="${animal.peso != null ? animal.peso + ' kg' : 'N/A'}">N/A</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Tamaño</div>
+                        <div class="stat-value" th:text="${animal.tamanio ?: 'Mediano'}">Mediano</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Tipo</div>
+                        <div class="stat-value" th:text="${animal.tipo}">Tipo</div>
+                    </div>
+                </div>
+
+                <!-- BADGES -->
+                <div class="badges-container">
+                    <span class="badge-custom badge-male" th:if="${animal.sexo == 'MACHO'}">♂ Macho</span>
+                    <span class="badge-custom badge-female" th:if="${animal.sexo == 'HEMBRA'}">♀ Hembra</span>
+                    <span class="badge-custom badge-neutered" th:if="${animal.castrado}">✓ Castrado</span>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- BOTÓN DE ME GUSTA -->
+                <form action="/megusta/toggle" method="post" style="margin-bottom: 1rem;">
+                    <input type="hidden" name="idAnimal" th:value="${animal.id}">
+                    <button type="submit" class="btn-like-large" th:classappend="${liked} ? 'active' : ''">
+                        <i class="bi bi-heart-fill me-2"></i>
+                        <span th:text="${liked} ? 'Guardado en favoritos' : 'Guardar en favoritos'">Guardar en favoritos</span>
+                    </button>
+                </form>
+
+                <!-- BOTONES DE COMPARTIR -->
+                <div class="share-buttons">
+                    <button class="btn-share btn-whatsapp" onclick="compartirWhatsApp()">
+                        <i class="bi bi-whatsapp"></i>
+                        WhatsApp
+                    </button>
+                    <button class="btn-share btn-email" onclick="compartirEmail()">
+                        <i class="bi bi-envelope-fill"></i>
+                        Email
+                    </button>
+                </div>
+
+                <!-- INFORMACIÓN ADICIONAL -->
+                <div style="background: rgba(255, 84, 0, 0.1); border: 1px solid rgba(255, 84, 0, 0.3); border-radius: 8px; padding: 1rem;">
+                    <div style="display: flex; align-items: start; gap: 10px;">
+                        <i class="bi bi-info-circle-fill" style="color: var(--primary-orange); font-size: 1.2rem; margin-top: 2px;"></i>
+                        <div>
+                            <p style="color: #e5e7eb; margin: 0; font-size: 0.9rem; line-height: 1.6;">
+                                <strong>Importante:</strong> Antes de adoptar, asegúrate de tener tiempo, espacio y recursos para cuidar de tu nueva mascota.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// === FUNCIÓN PARA COMPARTIR POR WHATSAPP ===
+function compartirWhatsApp() {
+    // Obtener datos del animal
+    const nombre = document.querySelector('.animal-title').textContent;
+    const url = window.location.href;
+    
+    // Crear mensaje
+    const mensaje = `¡Mira a ${nombre}! 🐾
+Está buscando un hogar lleno de amor.
+
+${url}
+
+#Petfinder #Adopción`;
+    
+    // Codificar mensaje para URL
+    const mensajeCodificado = encodeURIComponent(mensaje);
+    
+    // Abrir WhatsApp
+    // En móvil: abre la app
+    // En desktop: abre WhatsApp Web
+    window.open(`https://wa.me/?text=${mensajeCodificado}`, '_blank');
+}
+
+// === FUNCIÓN PARA COMPARTIR POR EMAIL ===
+function compartirEmail() {
+    const nombre = document.querySelector('.animal-title').textContent;
+    const url = window.location.href;
+    
+    // Asunto del email
+    const asunto = `¡Conoce a ${nombre} en Petfinder!`;
+    
+    // Cuerpo del email
+    const cuerpo = `Hola,
+
+Quería compartir contigo el perfil de ${nombre}, que está en adopción:
+
+${url}
+
+¡Dale una oportunidad de encontrar un hogar!
+
+Saludos,
+Petfinder`;
+    
+    // Codificar para URL
+    const asuntoCodificado = encodeURIComponent(asunto);
+    const cuerpoCodificado = encodeURIComponent(cuerpo);
+    
+    // Abrir cliente de correo
+    window.location.href = `mailto:?subject=${asuntoCodificado}&body=${cuerpoCodificado}`;
+}
+</script>
+
+</body>
+</html>
