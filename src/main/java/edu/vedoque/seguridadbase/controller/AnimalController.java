@@ -111,4 +111,6 @@ public class AnimalController {
         model.addAttribute("animales", listaDto);
         return "animales/favoritos"; // Carga la vista favoritos.html
     }
+
+
 }

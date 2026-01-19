@@ -12,15 +12,17 @@ public class Animal {
     private Long id;
 
     private String nombre;
-    private String tipo;
+    private String tipo;      // PERRO o GATO
     private String raza;
     private String imagenUrl;
+
+    // Campos extra
     private int edad;
     private String localizacion;
     private String sexo;
     private boolean castrado;
 
-    // --- NUEVO CAMPO: DUEÑO DEL ANIMAL ---
+    // --- RELACIÓN: Dueño del animal ---
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     private User usuario;

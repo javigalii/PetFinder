@@ -36,7 +36,7 @@ public class CrearBBBDD implements CommandLineRunner{
             roleRepository.save(role2);
 
             User user=new User();
-            user.setName("Javi");
+            user.setNombrePila("Javi");
             user.setEmail("galiapinerojavier@gmail.com");
             user.setPassword("1234");
             userService.saveCifrandoPassword(user);

@@ -27,18 +27,36 @@ public class SpringSecurity {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests((authorize) ->
-                        authorize.requestMatchers("/register/**").permitAll()
-                                .requestMatchers("/index", "/", "/inicio", "animales/lista", "/animales/detalle/**").permitAll()
-                                .requestMatchers("/users").hasRole("ADMIN")
-                                .requestMatchers("/crud/noticias", "/crud/noticias/insertar", "/crud/noticias/modificar/**", "/noticia/**",
-                                        "/comentario/insertar", "/crud/noticias/eliminar/**", "/megusta/**", "/animales/lista","/animales/megusta/**", "animales/favoritos").authenticated()
-                                .requestMatchers("/file/download/**") . permitAll()
+                .authorizeHttpRequests((authorize) -> authorize
+                        // 1. RECURSOS ESTÁTICOS (Siempre públicos)
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+
+                        // 2. PÁGINAS PÚBLICAS (Login, Registro, Inicio)
+                        .requestMatchers("/register/**", "/index", "/", "/inicio").permitAll()
+                        .requestMatchers("/file/download/**").permitAll()
+
+                        // 3. ANIMALES (El catálogo y los detalles son públicos para que la gente se anime a adoptar)
+                        .requestMatchers("/animales/lista", "/animales/detalle/**").permitAll()
+
+                        // 4. SOLO ADMINISTRADORES
+                        .requestMatchers("/users").hasRole("ADMIN")
+
+                        // 5. ZONA PRIVADA (Requiere estar logueado)
+                        // A. Acciones sobre animales
+                        .requestMatchers("/animales/megusta/**", "/animales/favoritos").authenticated()
+
+                        // B. PERFIL DE USUARIO (Ver, Editar, Guardar)
+                        // El ** incluye /perfil/, /perfil/editar y /perfil/guardar
+                        .requestMatchers("/perfil/**").authenticated()
+
+                        // 6. RUTAS ANTIGUAS (Noticias)
+                        .requestMatchers("/crud/noticias/**", "/noticia/**", "/comentario/insertar", "/megusta/**").authenticated()
                 ).formLogin(
                         form -> form
                                 .loginPage("/login")
                                 .loginProcessingUrl("/login")
-                                .defaultSuccessUrl("/")
+                                // Al entrar correctamente, te lleva a la lista de animales
+                                .defaultSuccessUrl("/animales/lista")
                                 .permitAll()
                 ).logout(
                         logout -> logout
