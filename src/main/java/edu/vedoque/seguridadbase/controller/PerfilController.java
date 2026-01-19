@@ -72,4 +72,33 @@ public class PerfilController {
 
         return "redirect:/perfil/";
     }
+
+    // --- NUEVO: MOSTRAR FORMULARIO PARA SUBIR ANIMAL ---
+    @GetMapping("/anadir-animal")
+    public String formularioAnadir(Model model, Authentication auth) {
+        if(auth == null) return "redirect:/login";
+
+        // Pasamos un animal vacío para que el formulario lo rellene
+        model.addAttribute("animal", new Animal());
+
+        return "perfil/anadirAnimal";
+    }
+
+    // --- NUEVO: GUARDAR EL ANIMAL EN LA BASE DE DATOS ---
+    @PostMapping("/guardar-animal")
+    public String guardarNuevoAnimal(@ModelAttribute Animal animal, Authentication auth) {
+        if(auth == null) return "redirect:/login";
+
+        // 1. Obtenemos el usuario conectado (el dueño)
+        User usuario = userService.findByEmail(auth.getName());
+
+        // 2. Asignamos este usuario al animal
+        animal.setUsuario(usuario);
+
+        // 3. Guardamos en la base de datos
+        repoAnimales.save(animal);
+
+        // 4. Volvemos al perfil para ver que se ha añadido
+        return "redirect:/perfil/";
+    }
 }

@@ -46,6 +46,10 @@
         <div class="col-md-8">
             <h3 class="mb-3 border-bottom pb-2">🐶 Mis Animales en Adopción</h3>
 
+            <a href="/perfil/anadir-animal" class="btn btn-success btn-sm rounded-pill">
+                <i class="fa-solid fa-plus"></i> Añadir Nuevo
+            </a>
+
             <div th:if="${#lists.isEmpty(misAnimales)}" class="alert alert-info">
                 No has subido ningún animal todavía.
             </div>
