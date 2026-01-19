@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="users")
+@Table(name = "pf_users")
 public class User
 {
     private static final long serialVersionUID = 1L;

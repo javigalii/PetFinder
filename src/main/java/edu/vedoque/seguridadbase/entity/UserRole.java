@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Entity
 @Data
+@Table(name = "pf_user_roles")
 public class UserRole {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

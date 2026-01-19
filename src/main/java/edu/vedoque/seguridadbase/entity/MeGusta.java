@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 @Entity
+@Table(name = "pf_me_gusta")
 public class MeGusta {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

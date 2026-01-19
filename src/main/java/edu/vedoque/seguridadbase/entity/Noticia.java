@@ -7,6 +7,7 @@ import java.sql.Date;
 
 @Data
 @Entity
+@Table(name = "pf_noticias")
 public class Noticia {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

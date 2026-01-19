@@ -8,6 +8,7 @@ import java.sql.Date;
 
 @Data
 @Entity
+@Table(name = "pf_comentarios")
 public class Comentario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
