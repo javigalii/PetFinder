@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class FileProcessingServiceImpl implements FileProcessingService {
 
     //@Value("${filePath}")
-    private String basePath="C:\\Users\\galia\\IdeaProjects\\seguridadbase\\uploads\\";
+    private String basePath="C:\\Programacion\\PetFinder\\uploads";
 
     @Override
     public List<String> fileList() {

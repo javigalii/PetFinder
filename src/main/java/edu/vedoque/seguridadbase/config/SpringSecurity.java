@@ -29,21 +29,21 @@ public class SpringSecurity {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((authorize) -> authorize
                         // 1. RECURSOS ESTÁTICOS (Siempre públicos)
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/blog").permitAll()
 
                         // 2. PÁGINAS PÚBLICAS (Login, Registro, Inicio)
                         .requestMatchers("/register/**", "/index", "/", "/inicio").permitAll()
                         .requestMatchers("/file/download/**").permitAll()
 
                         // 3. ANIMALES (El catálogo y los detalles son públicos para que la gente se anime a adoptar)
-                        .requestMatchers("/animales/lista", "/animales/detalle/**").permitAll()
+                        .requestMatchers("/animales/lista", "/animales/detalle/**", "/perfil/usuario/**").permitAll()
 
                         // 4. SOLO ADMINISTRADORES
                         .requestMatchers("/users").hasRole("ADMIN")
 
                         // 5. ZONA PRIVADA (Requiere estar logueado)
                         // A. Acciones sobre animales
-                        .requestMatchers("/animales/megusta/**", "/animales/favoritos").authenticated()
+                        .requestMatchers("/animales/megusta/**", "/animales/favoritos", "/animales/detalle/**").authenticated()
 
                         // B. PERFIL DE USUARIO (Ver, Editar, Guardar)
                         // El ** incluye /perfil/, /perfil/editar y /perfil/guardar

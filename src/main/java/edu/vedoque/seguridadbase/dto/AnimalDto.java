@@ -1,5 +1,6 @@
 package edu.vedoque.seguridadbase.dto;
 
+import edu.vedoque.seguridadbase.entity.User;
 import lombok.Data;
 
 @Data
@@ -18,4 +19,6 @@ public class AnimalDto {
 
     // El campo especial para el corazón
     private boolean likedByCurrentUser;
+
+    private User usuario;
 }

@@ -1,143 +1,340 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Adopta un Amigo</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petfinder - Encuentra tu compañero</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* Estilo para que todas las fotos midan lo mismo y no rompan el diseño */
-        .card-img-top {
-            height: 250px;
-            object-fit: cover; /* Recorta la imagen para llenar el hueco sin deformar */
+        :root {
+            --primary-orange: #ff5400;
+            --dark-bg: #1a1d29;
+            --card-bg: #23263a;
+            --light-gray: #f5f6f7;
+            --hover-orange: #ff6d1f;
+            --text-gray: #9ca3af;
+            --border-color: #2d3142;
         }
 
-        /* Botón de Like flotante (círculo blanco) */
-        .btn-like {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: white;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: transform 0.2s;
-            text-decoration: none;
+        body {
+            background: linear-gradient(180deg, #13151f 0%, #1a1d29 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: #e5e7eb;
+            min-height: 100vh;
         }
 
-        .btn-like:hover {
-            transform: scale(1.1);
+        /* NAVBAR */
+        .navbar-dark-custom {
+            background: #13151f;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+        .navbar-brand { font-size: 1.5rem; font-weight: 800; color: var(--primary-orange) !important; }
+        .nav-link { color: var(--text-gray) !important; font-weight: 500; transition: color 0.2s; }
+        .nav-link:hover, .nav-link.active { color: var(--primary-orange) !important; }
+
+        /* FILTROS */
+        .filters-sidebar {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            position: sticky; top: 20px;
+        }
+        .filters-sidebar label {
+            color: var(--text-gray); font-size: 0.8rem; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;
+        }
+        .form-control, .form-select {
+            background: #1a1d29; border: 1px solid var(--border-color); color: #e5e7eb; border-radius: 8px;
+        }
+        .form-control:focus, .form-select:focus {
+            background: #13151f; border-color: var(--primary-orange); box-shadow: 0 0 0 3px rgba(255, 84, 0, 0.1); color: white;
+        }
+        .input-group-text { background: #1a1d29; border: 1px solid var(--border-color); border-right: none; color: var(--text-gray); }
+
+        /* SWITCH FAVORITOS */
+        .switch-favoritos {
+            background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3); border-radius: 8px; padding: 12px;
+        }
+        .form-check-input:checked { background-color: var(--primary-orange); border-color: var(--primary-orange); }
+
+        /* TARJETAS */
+        .pet-card {
+            background: var(--card-bg); border-radius: 8px; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border-color); height: 100%; display: flex; flex-direction: column;
+        }
+        .pet-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); border-color: rgba(255, 84, 0, 0.3); }
+
+        .card-img-wrapper { position: relative; padding-top: 100%; overflow: hidden; background: #13151f; }
+        .card-img-top { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+        .pet-card:hover .card-img-top { transform: scale(1.08); }
+
+        .pet-badge-corner {
+            position: absolute; top: 12px; left: 12px; background: var(--primary-orange); color: white;
+            padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; z-index: 5;
         }
 
-        /* Badges personalizados */
-        .badge-raza {
-            background-color: #555;
-            font-weight: normal;
+        .like-btn-floating {
+            position: absolute; top: 12px; right: 12px; background: rgba(35, 38, 58, 0.95); backdrop-filter: blur(8px);
+            border-radius: 8px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s; color: #9ca3af; z-index: 10;
         }
-        .badge-castrado {
-            background-color: #d1e7dd;
-            color: #0f5132;
+        .like-btn-floating:hover { transform: scale(1.1); color: var(--primary-orange); }
+        .like-btn-floating.active { color: #ef4444; background: rgba(239, 68, 68, 0.15); border-color: #ef4444; }
+
+        .quick-action-overlay {
+            position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+            padding: 1.5rem 1rem 1rem; transform: translateY(100%); transition: transform 0.3s ease; z-index: 5;
         }
-        .badge-sexo-macho {
-            background-color: #cfe2ff;
-            color: #084298;
+        .pet-card:hover .quick-action-overlay { transform: translateY(0); }
+
+        .btn-quick-adopt {
+            background: var(--primary-orange); border: none; color: white; width: 100%; padding: 0.65rem; border-radius: 6px; font-weight: 700; text-decoration: none; display: block; text-align: center;
         }
-        .badge-sexo-hembra {
-            background-color: #f8d7da;
-            color: #842029;
-        }
+        .btn-quick-adopt:hover { background: var(--hover-orange); color: white; }
+
+        .pet-card .card-body { padding: 1rem; flex-grow: 1; display: flex; flex-direction: column; }
+        .pet-location { color: var(--text-gray); font-size: 0.85rem; }
+        .pet-location i { color: var(--primary-orange); }
+        .age-badge { background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-color); color: #e5e7eb; font-size: 0.8rem; padding: 4px 10px; border-radius: 6px; }
+
+        .pet-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; padding-top: 0.75rem; }
+        .badge-tag { font-size: 0.75rem; padding: 5px 10px; border-radius: 6px; }
+        .badge-male { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .badge-female { background: rgba(236, 72, 153, 0.15); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.3); }
+        .badge-neutered { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+        .btn-primary-custom { background: var(--primary-orange); border: none; color: white; font-weight: bold; }
+        .btn-primary-custom:hover { background: var(--hover-orange); color: white; }
+
+        .oculto { display: none !important; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+<nav class="navbar navbar-expand-lg navbar-dark-custom sticky-top">
     <div class="container">
-        <a class="navbar-brand" href="/"><i class="fa-solid fa-paw"></i> AdoptaApp</a>
-        <div class="d-flex">
+        <a class="navbar-brand" href="/">
+            <i class="fa-solid fa-paw"></i> Petfinder
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link active" href="/animales/lista">Explorar</a></li>
+                <li class="nav-item"><a class="nav-link" href="/blog">Noticias</a></li>
+                <li class="nav-item"><a class="nav-link" href="/perfil">Mi Perfil</a></li>
+                <li class="nav-item"><a class="nav-link" href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Salir</a></li>
+            </ul>
         </div>
     </div>
 </nav>
 
-<div class="container">
+<div class="container py-4">
 
-    <div class="d-flex justify-content-center mb-4 gap-2">
-        <a href="/animales/"
-           class="btn"
-           th:classappend="${filtroActual == null} ? 'btn-primary' : 'btn-outline-primary'">
-            Todos
-        </a>
-        <a href="/animales/?tipo=PERRO"
-           class="btn"
-           th:classappend="${filtroActual == 'PERRO'} ? 'btn-primary' : 'btn-outline-primary'">
-            <i class="fa-solid fa-dog"></i> Perros
-        </a>
-        <a href="/animales/?tipo=GATO"
-           class="btn"
-           th:classappend="${filtroActual == 'GATO'} ? 'btn-primary' : 'btn-outline-primary'">
-            <i class="fa-solid fa-cat"></i> Gatos
-        </a>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="text-white fw-bold" th:text="${param.favoritos} ? 'Mis Favoritos ❤️' : 'Encuentra a tu compañero'"></h2>
+        </div>
+        <span class="text-secondary" th:text="${#lists.size(animales)} + ' mascotas disponibles'"></span>
     </div>
 
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    <button class="btn btn-primary-custom d-lg-none mb-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFilters">
+        <i class="bi bi-sliders"></i> Filtros
+    </button>
 
-        <div class="col" th:each="animal : ${animales}">
-            <div class="card h-100 shadow-sm border-0 overflow-hidden">
+    <div class="row">
 
-                <div class="position-relative">
-                    <img th:src="${animal.imagenUrl}" class="card-img-top" alt="Foto animal">
-
-                    <a th:href="@{/animales/megusta/{id}(id=${animal.id})}" class="btn-like">
-                        <i th:classappend="${animal.likedByCurrentUser} ? 'fa-solid text-danger' : 'fa-regular text-secondary'"
-                           class="fa-heart fa-lg"></i>
-                    </a>
+        <div class="col-lg-3">
+            <div class="offcanvas-lg offcanvas-start" tabindex="-1" id="offcanvasFilters">
+                <div class="offcanvas-header bg-dark">
+                    <h5 class="offcanvas-title text-white fw-bold">Filtros</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
                 </div>
 
-                <div class="card-body">
-                    <span class="badge rounded-pill badge-raza mb-2">
-                        <i class="fa-solid fa-tag"></i> <span th:text="${animal.raza}">Golden Retriever</span>
-                    </span>
+                <div class="offcanvas-body p-0 p-lg-0">
+                    <div class="filters-sidebar w-100">
+                        <form action="/animales/lista" method="get">
 
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h4 class="card-title fw-bold mb-0" th:text="${animal.nombre}">Max</h4>
-                        <span class="border rounded px-2 py-1 small fw-bold">
-                            <span th:text="${animal.edad}">2</span> años
-                        </span>
+                            <div class="mb-4 switch-favoritos">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="switchFavoritos"
+                                           name="favoritos" value="true"
+                                           th:checked="${param.favoritos}"
+                                           onchange="this.form.submit()">
+                                    <label class="form-check-label fw-bold text-white" for="switchFavoritos">
+                                        <i class="bi bi-heart-fill text-danger me-2"></i>Solo mis favoritos
+                                    </label>
+                                </div>
+                            </div>
+
+                            <hr style="border-color: var(--border-color);">
+
+                            <div class="mb-4">
+                                <label class="form-label">Ubicación</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                                    <input type="text" name="ciudad" class="form-control" placeholder="Ej. Madrid" th:value="${param.ciudad}">
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">Tipo de mascota</label>
+                                <select name="tipo" class="form-select" id="tipoMascota">
+                                    <option value="">Todas</option>
+                                    <option value="PERRO" th:selected="${param.tipo != null && param.tipo[0] == 'PERRO'}">🐕 Perros</option>
+                                    <option value="GATO" th:selected="${param.tipo != null && param.tipo[0] == 'GATO'}">🐈 Gatos</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4 oculto" id="selectorRaza">
+                                <label class="form-label">Raza</label>
+                                <select name="raza" class="form-select" id="selectRaza">
+                                    <option value="">Todas las razas</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3 row g-3">
+                                <div class="col-6">
+                                    <label class="form-label">Sexo</label>
+                                    <select name="sexo" class="form-select">
+                                        <option value="">Todos</option>
+                                        <option value="Macho" th:selected="${param.sexo != null && param.sexo[0] == 'Macho'}">Macho</option>
+                                        <option value="Hembra" th:selected="${param.sexo != null && param.sexo[0] == 'Hembra'}">Hembra</option>
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">Edad máx.</label>
+                                    <input type="number" name="edad" class="form-control" placeholder="Años" th:value="${param.edad}">
+                                </div>
+                            </div>
+
+                            <div class="mb-4 form-check">
+                                <input type="checkbox" name="castrado" class="form-check-input" id="checkCastrado" value="true" th:checked="${param.castrado != null}">
+                                <label class="form-check-label" for="checkCastrado">Solo castrados</label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary-custom w-100 mb-2 py-2 rounded-3">
+                                <i class="bi bi-funnel-fill me-2"></i>Aplicar Filtros
+                            </button>
+                            <a href="/animales/lista" class="btn btn-link w-100 text-decoration-none text-secondary small">Limpiar búsqueda</a>
+                        </form>
                     </div>
-
-                    <p class="text-secondary small mb-3">
-                        <i class="fa-solid fa-location-dot text-danger"></i>
-                        <span th:text="${animal.localizacion}">Madrid</span>
-                    </p>
-
-                    <div class="d-flex gap-2 mb-3">
-                        <span class="badge"
-                              th:text="${animal.sexo}"
-                              th:classappend="${animal.sexo == 'Macho'} ? 'badge-sexo-macho' : 'badge-sexo-hembra'">
-                            Macho
-                        </span>
-
-                        <span class="badge badge-castrado" th:if="${animal.castrado}">
-                            Castrado
-                        </span>
-                    </div>
-
-                    <a th:href="@{/animales/detalle/{id}(id=${animal.id})}" class="btn btn-outline-primary w-100 rounded-pill">
-                        Ver Detalles
-                    </a>
                 </div>
             </div>
         </div>
+
+        <div class="col-lg-9">
+
+            <div th:if="${#lists.isEmpty(animales)}" class="text-center py-5 empty-state card p-5" style="background: var(--card-bg); border-color: var(--border-color);">
+                <div th:if="${param.favoritos}">
+                    <i class="bi bi-heart-break display-1 text-danger opacity-50"></i>
+                    <h3 class="mt-3 text-white">No tienes favoritos aún</h3>
+                    <p class="mb-4 text-secondary">Dale "Me gusta" a las mascotas para guardarlas aquí.</p>
+                    <a href="/animales/lista" class="btn btn-primary-custom">Explorar mascotas</a>
+                </div>
+                <div th:unless="${param.favoritos}">
+                    <i class="fa-solid fa-magnifying-glass display-1 text-secondary mb-3"></i>
+                    <h3 class="text-white">No encontramos resultados</h3>
+                    <p class="text-secondary">Prueba a limpiar los filtros para ver todas las mascotas.</p>
+                    <a href="/animales/lista" class="btn btn-primary-custom">Ver todos</a>
+                </div>
+            </div>
+
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+
+                <div class="col" th:each="animal : ${animales}">
+                    <div class="pet-card">
+
+                        <div class="card-img-wrapper">
+                            <img th:src="@{'/file/download/' + ${animal.imagenUrl}}" class="card-img-top" alt="Foto Mascota">
+
+                            <span class="pet-badge-corner">
+                                <i class="bi bi-tag-fill me-1"></i><span th:text="${animal.raza}">Raza</span>
+                            </span>
+
+                            <a th:href="@{/animales/megusta/{id}(id=${animal.id})}"
+                               class="like-btn-floating"
+                               th:classappend="${animal.likedByCurrentUser} ? 'active' : ''"
+                               title="Me gusta">
+                                <i th:class="${animal.likedByCurrentUser} ? 'fa-solid fa-heart' : 'fa-regular fa-heart'"></i>
+                            </a>
+
+                            <div class="quick-action-overlay">
+                                <a th:href="@{/animales/detalle/{id}(id=${animal.id})}" class="btn btn-quick-adopt">
+                                    <i class="fa-solid fa-eye me-2"></i>Ver Detalles
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title text-white fw-bold mb-1" th:text="${animal.nombre}">Nombre</h5>
+                                    <div class="pet-location">
+                                        <i class="bi bi-geo-alt-fill text-danger"></i>
+                                        <span th:text="${animal.localizacion}">Ciudad</span>
+                                    </div>
+                                </div>
+                                <span class="age-badge" th:text="${animal.edad} + ' años'">Edad</span>
+                            </div>
+
+                            <div class="pet-tags">
+                                <span class="badge-tag badge-male" th:if="${animal.sexo == 'Macho'}">♂ Macho</span>
+                                <span class="badge-tag badge-female" th:if="${animal.sexo == 'Hembra'}">♀ Hembra</span>
+                                <span class="badge-tag badge-neutered" th:if="${animal.castrado}">✓ Castrado</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
-
-
-
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // === SISTEMA DE RAZAS DINÁMICAS (Solo visual por ahora) ===
+    const razasPorTipo = {
+        PERRO: ['Labrador', 'Golden Retriever', 'Pastor Alemán', 'Bulldog', 'Beagle', 'Poodle', 'Husky', 'Chihuahua', 'Mestizo'],
+        GATO: ['Persa', 'Siamés', 'Maine Coon', 'Bengalí', 'Sphynx', 'Común Europeo', 'Mestizo']
+    };
+
+    const tipoMascotaSelect = document.getElementById('tipoMascota');
+    const selectorRazaDiv = document.getElementById('selectorRaza');
+    const selectRaza = document.getElementById('selectRaza');
+
+    function actualizarRazas() {
+        const tipoSeleccionado = tipoMascotaSelect.value;
+        if (!tipoSeleccionado || tipoSeleccionado === '') {
+            selectorRazaDiv.classList.add('oculto');
+            selectorRazaDiv.classList.remove('fade-in');
+            return;
+        }
+        selectRaza.innerHTML = '<option value="">Todas las razas</option>';
+        const razas = razasPorTipo[tipoSeleccionado] || [];
+        razas.forEach(raza => {
+            const option = document.createElement('option');
+            option.value = raza;
+            option.textContent = raza;
+            selectRaza.appendChild(option);
+        });
+        selectorRazaDiv.classList.remove('oculto');
+        selectorRazaDiv.classList.add('fade-in');
+    }
+
+    tipoMascotaSelect.addEventListener('change', actualizarRazas);
+    document.addEventListener('DOMContentLoaded', actualizarRazas);
+</script>
+
 </body>
 </html>

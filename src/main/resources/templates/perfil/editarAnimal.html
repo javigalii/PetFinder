@@ -2,32 +2,32 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Publicar Adopción</title>
+    <title>Editar Animal</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-light">
 
 <div class="container mt-5 mb-5" style="max-width: 700px;">
     <div class="card shadow border-0">
-        <div class="card-header bg-success text-white">
-            <h4 class="mb-0"><i class="fa-solid fa-paw"></i> Publicar Animal en Adopción</h4>
+        <div class="card-header bg-warning text-dark">
+            <h4 class="mb-0">✏️ Editar Datos del Animal</h4>
         </div>
         <div class="card-body p-4">
 
-            <form th:action="@{/perfil/guardar-animal}" method="post" th:object="${animal}" enctype="multipart/form-data">
+            <form th:action="@{/perfil/actualizar-animal}" method="post" th:object="${animal}" enctype="multipart/form-data">
+
+                <input type="hidden" th:field="*{id}">
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Nombre del animal</label>
-                        <input type="text" th:field="*{nombre}" class="form-control" placeholder="Ej: Toby" required>
+                        <label class="form-label fw-bold">Nombre</label>
+                        <input type="text" th:field="*{nombre}" class="form-control" required>
                     </div>
-
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-bold">Tipo</label>
                         <select th:field="*{tipo}" class="form-select">
-                            <option value="PERRO">Perro 🐶</option>
-                            <option value="GATO">Gato 🐱</option>
+                            <option value="PERRO">Perro</option>
+                            <option value="GATO">Gato</option>
                         </select>
                     </div>
                 </div>
@@ -35,14 +35,12 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-bold">Raza</label>
-                        <input type="text" th:field="*{raza}" class="form-control" placeholder="Ej: Pastor Alemán" required>
+                        <input type="text" th:field="*{raza}" class="form-control" required>
                     </div>
-
                     <div class="col-md-3 mb-3">
-                        <label class="form-label fw-bold">Edad (años)</label>
-                        <input type="number" th:field="*{edad}" class="form-control" value="1" min="0" required>
+                        <label class="form-label fw-bold">Edad</label>
+                        <input type="number" th:field="*{edad}" class="form-control" required>
                     </div>
-
                     <div class="col-md-3 mb-3">
                         <label class="form-label fw-bold">Sexo</label>
                         <select th:field="*{sexo}" class="form-select">
@@ -53,26 +51,27 @@
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-bold">Ciudad / Localización</label>
-                    <input type="text" th:field="*{localizacion}" class="form-control" placeholder="Ej: Madrid" required>
+                    <label class="form-label fw-bold">Localización</label>
+                    <input type="text" th:field="*{localizacion}" class="form-control" required>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label fw-bold">Subir Foto</label>
-                    <input type="file" name="fichero" class="form-control" accept="image/*" required>
-                    <div class="form-text">Formatos: JPG, PNG.</div>
+                    <label class="form-label fw-bold">Cambiar Foto (Opcional)</label>
+                    <div class="mb-2 text-muted small" th:if="${animal.imagenUrl != null}">
+                        Foto actual guardada. Sube una nueva solo si quieres cambiarla.
+                    </div>
+
+                    <input type="file" name="fichero" class="form-control" accept="image/*">
                 </div>
 
                 <div class="form-check mb-4">
                     <input class="form-check-input" type="checkbox" th:field="*{castrado}" id="checkCastrado">
-                    <label class="form-check-label" for="checkCastrado">
-                        ¿Está castrado / esterilizado?
-                    </label>
+                    <label class="form-check-label" for="checkCastrado">Castrado / Esterilizado</label>
                 </div>
 
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     <a href="/perfil/" class="btn btn-secondary me-md-2">Cancelar</a>
-                    <button type="submit" class="btn btn-success px-4">Publicar Anuncio</button>
+                    <button type="submit" class="btn btn-warning px-4">Guardar Cambios</button>
                 </div>
 
             </form>

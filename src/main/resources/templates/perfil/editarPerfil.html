@@ -10,39 +10,46 @@
 <div class="container mt-5" style="max-width: 600px;">
     <div class="card shadow border-0">
         <div class="card-header bg-primary text-white">
-            <h4 class="mb-0">Editar Información</h4>
+            <h4 class="mb-0">Editar mi Perfil</h4>
         </div>
-        <div class="card-body p-4">
+        <div class="card-body">
 
-            <form th:action="@{/perfil/guardar}" method="post" th:object="${usuario}">
+            <form th:action="@{/perfil/guardar}" method="post" th:object="${usuario}" enctype="multipart/form-data">
 
                 <div class="mb-3">
-                    <label class="form-label">Nombre Público</label>
-                    <input type="text" name="nombrePila" class="form-control" th:value="${usuario.nombrePila}" placeholder="Ej: Laura García">
+                    <label class="form-label">Nombre de Pila</label>
+                    <input type="text" th:field="*{nombrePila}" class="form-control" required>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Ciudad / Localización</label>
-                    <input type="text" name="localizacion" class="form-control" th:value="${usuario.localizacion}" placeholder="Ej: Madrid">
+                    <label class="form-label">Localización (Ciudad)</label>
+                    <input type="text" th:field="*{localizacion}" class="form-control">
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">URL Foto de Perfil</label>
-                    <input type="text" name="fotoUrl" class="form-control" th:value="${usuario.fotoUrl}" placeholder="https://...">
-                    <div class="form-text">Copia el enlace de una imagen de internet.</div>
+                    <label class="form-label">Descripción</label>
+                    <textarea th:field="*{descripcion}" class="form-control" rows="3"></textarea>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Sobre mí (Descripción)</label>
-                    <textarea name="descripcion" class="form-control" rows="4" th:text="${usuario.descripcion}"></textarea>
+                    <label class="form-label">Foto de Perfil</label>
+
+                    <div class="d-flex align-items-center gap-3 mb-2" th:if="${usuario.fotoUrl != null}">
+                        <img th:src="@{'/file/download/' + ${usuario.fotoUrl}}"
+                             style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                        <span class="text-muted small">Foto actual</span>
+                    </div>
+
+                    <input type="file" name="fichero" class="form-control" accept="image/*">
+                    <div class="form-text">Sube una imagen (JPG, PNG). Si lo dejas vacío, se mantiene la actual.</div>
                 </div>
 
-                <div class="d-flex justify-content-between">
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                     <a href="/perfil/" class="btn btn-secondary">Cancelar</a>
-                    <button type="submit" class="btn btn-success">Guardar Cambios</button>
                 </div>
-
             </form>
+
         </div>
     </div>
 </div>

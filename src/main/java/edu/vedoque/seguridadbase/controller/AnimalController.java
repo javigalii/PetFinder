@@ -8,6 +8,7 @@ import edu.vedoque.seguridadbase.repository.RepositorioAnimales;
 import edu.vedoque.seguridadbase.repository.RepositorioMeGustaAnimal;
 import edu.vedoque.seguridadbase.service.ServicioAnimales;
 import edu.vedoque.seguridadbase.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/animales")
@@ -27,20 +29,50 @@ public class AnimalController {
     @Autowired private UserService userService;
     @Autowired private ServicioAnimales servicioAnimales;
 
-    // 1. LISTA GENERAL (Catálogo)
+    // 1. LISTA GENERAL CON TODOS LOS FILTROS NUEVOS
     @GetMapping("/lista")
-    public String lista(Model model, Authentication auth, @RequestParam(required=false) String tipo) {
+    public String lista(Model model,
+                        Authentication auth,
+                        @RequestParam(required=false) String tipo,
+                        @RequestParam(required=false) String ciudad,
+                        @RequestParam(required=false) String raza,
+                        @RequestParam(required=false) String sexo,
+                        @RequestParam(required=false) Integer edad,
+                        @RequestParam(required=false) Boolean castrado,
+                        @RequestParam(required=false) Boolean favoritos) { // <-- Nuevo filtro favoritos
+
         User usuario = (auth != null) ? userService.findByEmail(auth.getName()) : null;
 
-        List<Animal> animales;
-        if(tipo != null && !tipo.isEmpty()) {
-            animales = repoAnimales.findByTipo(tipo); // Filtrar perro/gato
+        List<Animal> animalesBrutos;
+
+        // 1. LÓGICA DE FAVORITOS VS TODOS
+        if (Boolean.TRUE.equals(favoritos) && usuario != null) {
+            // Si el switch "Mis Favoritos" está activo, traemos solo los likes
+            List<MeGustaAnimal> likes = repoMeGusta.findByUsuario(usuario);
+            animalesBrutos = likes.stream().map(MeGustaAnimal::getAnimal).collect(Collectors.toList());
         } else {
-            animales = repoAnimales.findAll(); // Todos
+            // Si no, traemos todos (o filtramos por tipo si existe para optimizar un poco)
+            if (tipo != null && !tipo.isEmpty()) {
+                animalesBrutos = repoAnimales.findByTipo(tipo);
+            } else {
+                animalesBrutos = repoAnimales.findAll();
+            }
         }
 
+        // 2. APLICAR RESTO DE FILTROS (Ciudad, Raza, Sexo, Edad, Castrado)
+        // Usamos Java Streams para filtrar la lista cargada
+        List<Animal> animalesFiltrados = animalesBrutos.stream()
+                .filter(a -> tipo == null || tipo.isEmpty() || a.getTipo().equalsIgnoreCase(tipo))
+                .filter(a -> ciudad == null || ciudad.isEmpty() || (a.getLocalizacion() != null && a.getLocalizacion().toLowerCase().contains(ciudad.toLowerCase())))
+                .filter(a -> raza == null || raza.isEmpty() || (a.getRaza() != null && a.getRaza().equalsIgnoreCase(raza)))
+                .filter(a -> sexo == null || sexo.isEmpty() || (a.getSexo() != null && a.getSexo().equalsIgnoreCase(sexo)))
+                .filter(a -> edad == null || a.getEdad() <= edad) // Filtra animales con esa edad o menos
+                .filter(a -> castrado == null || a.isCastrado() == castrado)
+                .collect(Collectors.toList());
+
+        // 3. CONVERTIR A DTO (Para saber si el usuario le dio like a cada uno)
         List<AnimalDto> listaDto = new ArrayList<>();
-        for (Animal a : animales) {
+        for (Animal a : animalesFiltrados) {
             listaDto.add(servicioAnimales.toDto(a, usuario));
         }
 
@@ -65,7 +97,7 @@ public class AnimalController {
 
     // 3. DAR/QUITAR ME GUSTA
     @GetMapping("/megusta/{id}")
-    public String meGusta(@PathVariable Long id, Authentication auth) {
+    public String meGusta(@PathVariable Long id, Authentication auth, HttpServletRequest request) {
         if(auth == null) return "redirect:/login";
 
         User usuario = userService.findByEmail(auth.getName());
@@ -76,41 +108,24 @@ public class AnimalController {
             List<MeGustaAnimal> likes = repoMeGusta.findByAnimalAndUsuario(animal, usuario);
 
             if(!likes.isEmpty()) {
-                // Si ya existe, lo borramos (QUITAR LIKE)
-                repoMeGusta.delete(likes.get(0));
+                repoMeGusta.delete(likes.get(0)); // Quitar like
             } else {
-                // Si no existe, lo creamos (DAR LIKE)
-                MeGustaAnimal nuevoLike = new MeGustaAnimal();
+                MeGustaAnimal nuevoLike = new MeGustaAnimal(); // Dar like
                 nuevoLike.setAnimal(animal);
                 nuevoLike.setUsuario(usuario);
                 repoMeGusta.save(nuevoLike);
             }
         }
 
-        // Truco: Redirigimos a la página anterior para que no te saque de donde estás
-        // Si no funciona en tu navegador, cámbialo por return "redirect:/animales/lista";
-        return "redirect:/animales/lista";
+        // MEJORA: Redirige a la página desde donde viniste (lista o detalle)
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/animales/lista");
     }
 
-    // 4. MIS FAVORITOS (VISTA APARTE)
+    // 4. MIS FAVORITOS (Ruta directa antigua, compatible)
     @GetMapping("/favoritos")
     public String misFavoritos(Model model, Authentication auth) {
-        if(auth == null) return "redirect:/login";
-
-        User usuario = userService.findByEmail(auth.getName());
-
-        // Buscamos solo los likes de ESTE usuario
-        List<MeGustaAnimal> misLikes = repoMeGusta.findByUsuario(usuario);
-
-        List<AnimalDto> listaDto = new ArrayList<>();
-        for (MeGustaAnimal like : misLikes) {
-            // Convertimos el animal asociado al like
-            listaDto.add(servicioAnimales.toDto(like.getAnimal(), usuario));
-        }
-
-        model.addAttribute("animales", listaDto);
-        return "animales/favoritos"; // Carga la vista favoritos.html
+        // Redirigimos a la lista con el filtro activado para no duplicar código
+        return "redirect:/animales/lista?favoritos=true";
     }
-
-
 }

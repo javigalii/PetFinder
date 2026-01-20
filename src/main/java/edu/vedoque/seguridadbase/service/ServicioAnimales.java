@@ -23,11 +23,13 @@ public class ServicioAnimales {
         dto.setRaza(animal.getRaza());
         dto.setImagenUrl(animal.getImagenUrl());
 
-        // --- COPIAMOS LOS DATOS QUE FALTABAN ---
         dto.setEdad(animal.getEdad());
         dto.setLocalizacion(animal.getLocalizacion());
         dto.setSexo(animal.getSexo());
         dto.setCastrado(animal.isCastrado());
+
+        // --- NUEVO: PASAMOS EL DUEÑO AL DTO ---
+        dto.setUsuario(animal.getUsuario());
 
         // Lógica del Like
         if (usuario != null) {

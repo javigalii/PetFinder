@@ -51,7 +51,7 @@
         <div class="col" th:each="animal : ${animales}">
             <div class="card h-100 shadow-sm border-0 position-relative">
 
-                <img th:src="${animal.imagenUrl}" class="card-img-top" alt="Foto">
+                <img th:src="@{'/file/download/' + ${animal.imagenUrl}}" class="card-img-top" alt="Foto">
 
                 <a th:href="@{/animales/megusta/{id}(id=${animal.id})}" class="btn-like">
                     <i class="fa-solid fa-heart text-danger fa-lg"></i>

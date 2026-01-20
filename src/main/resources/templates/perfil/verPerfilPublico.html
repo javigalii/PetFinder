@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="'Perfil de ' + ${usuarioPublico.nombrePila}">Perfil Público</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { background: linear-gradient(180deg, #13151f 0%, #1a1d29 100%); color: #e5e7eb; min-height: 100vh; }
+        .card-dark { background: #23263a; border: 1px solid #2d3142; border-radius: 12px; }
+        .text-orange { color: #ff5400; }
+        .btn-orange { background: #ff5400; color: white; border: none; font-weight: bold; }
+        .btn-orange:hover { background: #ff6d1f; color: white; }
+        .avatar-circle { width: 100px; height: 100px; object-fit: cover; border: 3px solid #ff5400; }
+        .nav-link { color: #9ca3af; }
+        .nav-link:hover { color: #ff5400; }
+    </style>
+</head>
+<body class="bg-light">
+
+<nav class="navbar navbar-dark bg-dark mb-4 border-bottom border-secondary">
+    <div class="container">
+        <a class="navbar-brand text-orange fw-bold" href="/animales/lista"><i class="fa-solid fa-paw"></i> Petfinder</a>
+        <a href="/animales/lista" class="nav-link">Volver al Catálogo</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row">
+
+        <div class="col-md-4 mb-4">
+            <div class="card card-dark p-4 text-center">
+                <div class="mb-3 d-flex justify-content-center">
+                    <img th:src="${usuarioPublico.fotoUrl != null && !usuarioPublico.fotoUrl.isEmpty()}
+                                 ? '/file/download/' + ${usuarioPublico.fotoUrl}
+                                 : 'https://cdn-icons-png.flaticon.com/512/149/149071.png'"
+                         class="rounded-circle avatar-circle" alt="Foto Perfil">
+                </div>
+
+                <h3 class="text-white" th:text="${usuarioPublico.nombrePila}">Nombre</h3>
+                <p class="text-white"><i class="fa-solid fa-location-dot text-orange"></i> <span th:text="${usuarioPublico.localizacion}">Ciudad</span></p>
+
+                <hr class="border-secondary">
+
+                <div class="text-start">
+                    <h6 class="text-white fw-bold">Sobre mí:</h6>
+                    <p class="text-secondary fst-italic" th:text="${usuarioPublico.descripcion ?: 'Este usuario no ha añadido una descripción.'}"></p>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <a th:href="'mailto:' + ${usuarioPublico.email}" class="btn btn-orange rounded-pill">
+                        <i class="fa-solid fa-envelope"></i> Contactar por Email
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <h3 class="text-white mb-4 border-bottom border-secondary pb-2">
+                Mascotas publicadas por <span class="text-orange" th:text="${usuarioPublico.nombrePila}">Nombre</span>
+            </h3>
+
+            <div th:if="${#lists.isEmpty(animalesPublicos)}" class="alert alert-secondary bg-dark text-secondary border-secondary">
+                Este usuario no tiene mascotas en adopción actualmente.
+            </div>
+
+            <div class="row row-cols-1 row-cols-md-2 g-3">
+                <div class="col" th:each="animal : ${animalesPublicos}">
+                    <div class="card card-dark h-100 overflow-hidden">
+
+                        <img th:src="'/file/download/' + ${animal.imagenUrl}"
+                             class="card-img-top"
+                             style="height: 200px; object-fit: cover;"
+                             alt="Foto Mascota">
+
+                        <div class="card-body">
+                            <h5 class="card-title text-white" th:text="${animal.nombre}">Nombre</h5>
+                            <span class="badge bg-secondary" th:text="${animal.raza}">Raza</span>
+                            <span class="badge bg-dark border border-secondary text-secondary" th:text="${animal.edad} + ' años'">Edad</span>
+
+                            <a th:href="@{/animales/detalle/{id}(id=${animal.id})}" class="btn btn-outline-light w-100 mt-3 rounded-pill">
+                                Ver Ficha
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

@@ -38,7 +38,7 @@ public class MainController {
     @Autowired
     ServicioNoticias servicioNoticias;
 
-    @GetMapping("/")
+    @GetMapping("/blog")
     public String index(Model model, Authentication authentication) {
         User usuario=null;
         if(authentication != null) {
@@ -56,7 +56,7 @@ public class MainController {
 
         }
         model.addAttribute( "noticias", listaDto);
-        return "index";
+        return "blog";
     }
 
     @GetMapping("/noticia/{id}")
@@ -99,6 +99,6 @@ public class MainController {
             meGusta.setUsuario(usuario);
             repositorioMeGusta.save(meGusta);
         }
-        return "redirect:/";
+        return "redirect:/blog";
     }
 }
