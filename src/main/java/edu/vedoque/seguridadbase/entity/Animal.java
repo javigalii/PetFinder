@@ -15,7 +15,7 @@ public class Animal {
     private Long id;
 
     private String nombre;
-    private String tipo;      // PERRO o GATO
+    private String tipo;
     private String raza;
     private String imagenUrl;
 
