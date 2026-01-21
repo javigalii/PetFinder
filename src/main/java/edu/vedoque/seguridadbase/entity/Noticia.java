@@ -2,6 +2,7 @@ package edu.vedoque.seguridadbase.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.sql.Date;
 
@@ -11,6 +12,7 @@ import java.sql.Date;
 public class Noticia {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @ToString.Exclude
     private long id;
     private String titulo;
     @Column(columnDefinition = "text")

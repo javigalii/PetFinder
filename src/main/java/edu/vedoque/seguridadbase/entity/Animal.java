@@ -2,6 +2,7 @@ package edu.vedoque.seguridadbase.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,10 +27,13 @@ public class Animal {
     private boolean castrado;
 
     // --- RELACIÓN: Dueño del animal ---
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     private User usuario;
 
     @OneToMany(mappedBy = "animal", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MeGustaAnimal> likes = new ArrayList<>();
+
+
 }

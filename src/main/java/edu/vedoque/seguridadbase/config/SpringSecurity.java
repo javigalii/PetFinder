@@ -50,7 +50,7 @@ public class SpringSecurity {
                         .requestMatchers("/perfil/**").authenticated()
 
                         // 6. RUTAS ANTIGUAS (Noticias)
-                        .requestMatchers("/crud/noticias/**", "/noticia/**", "/comentario/insertar", "/megusta/**").authenticated()
+                        .requestMatchers("/crud/noticias/**", "/noticia/**", "/comentario/insertar", "/megusta/**", "/crud/noticias/insertar").authenticated()
                 ).formLogin(
                         form -> form
                                 .loginPage("/login")

@@ -2,6 +2,8 @@ package edu.vedoque.seguridadbase.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString; // <--- 1. IMPORTANTE: Añadir esta importación
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,17 +22,25 @@ public class User {
     private String password;
 
     // --- NUEVOS CAMPOS DE PERFIL ---
-    private String nombrePila;   // Ej: "Laura García"
-    private String fotoUrl;      // URL de la imagen
-    private String descripcion;  // "Soy amante de los gatos..."
-    private String localizacion; // "Madrid"
+    private String nombrePila;
+    private String fotoUrl;
+    private String descripcion;
+    private String localizacion;
 
     // RELACIÓN: Un usuario sube muchos animales
-    // 'mappedBy' indica que la clave ajena está en la tabla Animal (campo 'usuario')
+    // 2. IMPORTANTE: @ToString.Exclude rompe el bucle infinito.
+    // Le dice a Lombok: "Cuando imprimas un User, NO imprimas esta lista".
+    @ToString.Exclude
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private List<Animal> animalesSubidos;
 
-    // RELACIÓN: Roles de seguridad (ADMIN, USER)
+    // NOTA: Si tienes una lista de noticias aquí (aunque no salga en el código que me pasaste),
+    // también debes ponerle @ToString.Exclude:
+    // @ToString.Exclude
+    // @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL)
+    // private List<Noticia> noticias;
+
+    // RELACIÓN: Roles de seguridad
     @ManyToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
     @JoinTable(
             name="users_roles",
