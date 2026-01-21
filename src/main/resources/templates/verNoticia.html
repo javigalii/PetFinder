@@ -1,82 +1,318 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Noticia</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Lectura</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        :root {
+            --primary-orange: #ff5400;
+            --hover-orange: #ff6d1f;
+            --dark-bg: #13151f;
+            --card-bg: #23263a;
+            --input-bg: #1a1d29;
+            --border-color: #2d3142;
+            --text-gray: #9ca3af;
+        }
+
+        body {
+            background: var(--dark-bg);
+            background-image: radial-gradient(circle at top center, rgba(35, 38, 58, 0.4), transparent 50%);
+            color: #e5e7eb;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* === NAVBAR === */
+        .navbar-dark-custom {
+            background: #13151f;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            color: var(--primary-orange) !important;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        .nav-link {
+            color: var(--text-gray) !important;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: white !important;
+        }
+
+        .nav-link.active {
+            position: relative;
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute; bottom: 0; left: 10%; width: 80%;
+            height: 2px; background: var(--primary-orange);
+        }
+
+        /* === NOTICIA CARD === */
+        .article-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 3rem;
+        }
+
+        .article-img-wrapper {
+            position: relative;
+            max-height: 400px;
+            overflow: hidden;
+        }
+
+        .article-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Degradado sobre la imagen */
+        .article-img-wrapper::after {
+            content: '';
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 50%;
+            background: linear-gradient(to top, var(--card-bg), transparent);
+        }
+
+        .article-body {
+            padding: 2.5rem;
+            position: relative;
+        }
+
+        .article-title {
+            font-weight: 800;
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .article-meta {
+            color: var(--primary-orange);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        .article-content {
+            color: #d1d5db;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            white-space: pre-line; /* Respeta saltos de línea */
+        }
+
+        /* === COMENTARIOS === */
+        .comments-section-title {
+            color: white;
+            font-weight: 700;
+            border-left: 4px solid var(--primary-orange);
+            padding-left: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Formulario */
+        .comment-form textarea {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: white;
+            border-radius: 8px;
+            resize: none;
+        }
+
+        .comment-form textarea:focus {
+            background: #151823;
+            border-color: var(--primary-orange);
+            box-shadow: 0 0 0 3px rgba(255, 84, 0, 0.15);
+            color: white;
+        }
+
+        /* Lista Comentarios */
+        .comment-item {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 15px;
+            transition: transform 0.2s;
+        }
+
+        .comment-item:hover {
+            border-color: #3f445e;
+        }
+
+        .user-avatar {
+            width: 45px; height: 45px;
+            background: #2d3142;
+            color: var(--primary-orange);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .comment-date {
+            color: var(--text-gray);
+            font-size: 0.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .comment-text {
+            color: #e5e7eb;
+            margin: 0;
+        }
+
+        /* Botones */
+        .btn-primary-custom {
+            background: var(--primary-orange);
+            border: none; color: white; font-weight: 700;
+            padding: 0.6rem 1.5rem; border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .btn-primary-custom:hover {
+            background: var(--hover-orange);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline-custom {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-gray);
+            border-radius: 6px;
+            padding: 0.6rem 1.5rem;
+            text-decoration: none;
+            display: inline-flex; align-items: center; gap: 8px;
+            transition: all 0.2s;
+        }
+        .btn-outline-custom:hover {
+            border-color: white;
+            color: white;
+            background: rgba(255,255,255,0.05);
+        }
+    </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg bg-light" >
-    <div class="container-fluid" >
-        <a class="navbar-brand" href="/" > Blog</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle ="collapse"
-                data-bs-target ="#navbarNavAltMarkup" aria-controls ="navbarNavAltMarkup" aria-expanded ="false"
-                aria-label="Toggle navigation" >
-            <span class="navbar-toggler-icon" ></span>
+
+<nav class="navbar navbar-expand-lg navbar-dark-custom mb-5">
+    <div class="container">
+        <a class="navbar-brand" href="/blog">
+            <i class="bi bi-newspaper"></i> BlogNews
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNavAltMarkup">
+            <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNavAltMarkup" >
-            <div class="navbar-nav" >
-                <a class="nav-link active" aria-current ="page" href="/blog" >Ver
-                    noticias</a>
-                <a class="nav-link" href="/crud/noticias" >CRUD noticias </a>
-                <a class="nav-link" href="/crud/noticias/insertar" >Insertar
-                    noticia</a>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link active" href="/blog">Ver noticias</a>
+                <a class="nav-link" href="/crud/noticias">Gestión (CRUD)</a>
+                <a class="nav-link" href="/crud/noticias/insertar">
+                    <i class="bi bi-plus-circle me-1"></i>Nueva Noticia
+                </a>
             </div>
         </div>
     </div>
 </nav>
 
-<main class="container my-5">
-    <div class="text-center mb-4">
-        <h1 class="display-5 fw-bold text-success" th:text="${noticia.titulo}">Título de la noticia</h1>
-    </div>
-
+<main class="container">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0 mb-4">
-                <img th:src="${'/file/download/' + noticia.imagen}" class="card-img-top" alt="Imagen de la noticia">
-                <div class="card-body">
-                    <p class="card-text fs-5" th:text="${noticia.contenido}">
-                        Contenido de la noticia...
-                    </p>
-                    <hr>
-                    <p class="text-muted small text-end">
+        <div class="col-lg-9">
+
+            <article class="article-card">
+                <div class="article-img-wrapper">
+                    <img th:src="${'/file/download/' + noticia.imagen}" class="article-img" alt="Imagen de la noticia">
+                </div>
+
+                <div class="article-body">
+                    <div class="article-meta">
+                        <i class="bi bi-calendar-event"></i>
                         Publicado el <span th:text="${noticia.fecha}">dd/mm/yyyy</span>
-                    </p>
-                </div>
-            </div>
-
-            <!-- Sección de comentarios -->
-            <div class="mt-5">
-                <h3 class="text-success mb-3">Comentarios</h3>
-
-                <!-- Formulario para nuevo comentario -->
-                <form th:object="${auxComentario}" action="/comentario/insertar" method="post" class="mb-4">
-                    <div class="mb-3">
-                        <label for="contenido" class="form-label">Escribe un comentario:</label>
-                        <textarea id="contenido" class="form-control" rows="3" th:field="*{contenido}" placeholder="Escribe aquí tu comentario..."></textarea>
                     </div>
-                    <input type="hidden" th:field="*{noticia}">
-                    <button type="submit" class="btn btn-success">Comentar</button>
-                </form>
 
-                <!-- Lista de comentarios -->
-                <div class="list-group">
-                    <div class="list-group-item" th:each="comentario : ${listaComentarios}">
-                        <div class="d-flex w-100 justify-content-between">
-                            <small class="text-muted" th:text="${comentario.fecha}"></small>
+                    <h1 class="article-title" th:text="${noticia.titulo}">Título de la noticia</h1>
+
+                    <hr style="border-color: var(--border-color); opacity: 0.5; margin: 1.5rem 0;">
+
+                    <div class="article-content" th:text="${noticia.contenido}">
+                        Contenido de la noticia...
+                    </div>
+                </div>
+            </article>
+
+
+            <div class="mt-5 mb-5">
+                <h3 class="comments-section-title">
+                    <i class="bi bi-chat-left-text-fill me-2"></i>Comentarios
+                </h3>
+
+                <div class="card bg-transparent border-0 mb-5">
+                    <form th:object="${auxComentario}" action="/comentario/insertar" method="post" class="comment-form">
+                        <div class="mb-3">
+                            <textarea id="contenido" class="form-control" rows="3" th:field="*{contenido}"
+                                      placeholder="¿Qué opinas? Únete a la discusión..."></textarea>
                         </div>
-                        <p class="mb-1" th:text="${comentario.contenido}"></p>
+                        <input type="hidden" th:field="*{noticia}">
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary-custom">
+                                Publicar Comentario <i class="bi bi-send-fill ms-2"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="d-flex flex-column gap-3">
+                    <div th:if="${#lists.isEmpty(listaComentarios)}" class="text-center py-4 text-muted">
+                        <i class="bi bi-chat-dots fs-2 mb-2 d-block"></i>
+                        Sé el primero en comentar esta noticia.
+                    </div>
+
+                    <div class="comment-item" th:each="comentario : ${listaComentarios}">
+                        <div class="user-avatar">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+
+                        <div class="w-100">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-white" style="font-size: 0.9rem;">Usuario Anónimo</span>
+                                <small class="comment-date">
+                                    <i class="bi bi-clock me-1"></i><span th:text="${comentario.fecha}">Fecha</span>
+                                </small>
+                            </div>
+                            <p class="comment-text mt-1" th:text="${comentario.contenido}">Contenido</p>
+                        </div>
                     </div>
                 </div>
             </div>
-            <br>
-            <a th:href="@{/}" class="btn btn-outline-secondary ms-2">Volver a la pagina principal</a>
+
+            <div class="text-center pb-5">
+                <a th:href="@{/}" class="btn btn-outline-custom">
+                    <i class="bi bi-arrow-left"></i> Volver al inicio
+                </a>
+            </div>
+
         </div>
-
     </div>
-
 </main>
+
 </body>
 </html>

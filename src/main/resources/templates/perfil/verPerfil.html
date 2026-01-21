@@ -8,8 +8,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
     <style>
@@ -101,11 +99,10 @@
 
 <nav class="navbar navbar-expand-lg navbar-dark-custom sticky-top">
     <div class="container">
-        <a class="navbar-brand" href="/animales/lista"><i class="fa-solid fa-paw"></i> Petfinder</a>
+        <a class="navbar-brand" href="/animales/lista"><i class="bi bi-heart-fill"></i> Petfinder</a>
         <div class="collapse navbar-collapse" id="navContent">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <li class="nav-item"><a class="nav-link" href="/animales/lista">Explorar</a></li>
-                <li class="nav-item"><a class="nav-link" href="/blog">Noticias</a></li>
                 <li class="nav-item"><a class="nav-link active" href="/perfil">Mi Perfil</a></li>
                 <li class="nav-item"><a class="nav-link" href="/logout"><i class="bi bi-box-arrow-right"></i> Salir</a></li>
             </ul>
@@ -212,7 +209,8 @@
                         </div>
                         <div class="mb-4">
                             <label class="form-label">Raza *</label>
-                            <input type="text" name="raza" class="form-control" required>
+                            <select name="raza" id="nuevoRaza" class="form-select" required>
+                            </select>
                         </div>
                         <div class="row mb-4">
                             <div class="col-6">
@@ -281,7 +279,8 @@
                         </div>
                         <div class="mb-4">
                             <label class="form-label">Raza</label>
-                            <input type="text" name="raza" id="editarRaza" class="form-control" required>
+                            <select name="raza" id="editarRaza" class="form-select" required>
+                            </select>
                         </div>
                         <div class="row mb-4">
                             <div class="col-6">
@@ -330,14 +329,38 @@
 
 </div>
 
+
 <script>
-    // --- Lógica de Vistas ---
+    // 1. Configuración de datos
+    const razasPorTipo = {
+        'PERRO': ['Labrador', 'Golden Retriever', 'Pastor Alemán', 'Bulldog', 'Beagle', 'Poodle', 'Husky', 'Chihuahua', 'Pug', 'Yorkshire', 'Mestizo'],
+        'GATO': ['Persa', 'Siamés', 'Maine Coon', 'Bengalí', 'Sphynx', 'Común Europeo', 'Mestizo']
+    };
+
     const vistas = {
         perfil: document.getElementById('vistaPerfil'),
         anadir: document.getElementById('vistaAñadir'),
         editar: document.getElementById('vistaEditar')
     };
 
+    // 2. Función para llenar los combos de razas
+    function actualizarComboRazas(selectorTipo, selectorRaza, valorPreseleccionado = '') {
+        const tipo = document.querySelector(selectorTipo).value;
+        const selectRaza = document.querySelector(selectorRaza);
+
+        selectRaza.innerHTML = ''; // Limpiar
+
+        const lista = razasPorTipo[tipo] || [];
+        lista.forEach(raza => {
+            const opt = document.createElement('option');
+            opt.value = raza;
+            opt.textContent = raza;
+            if (raza === valorPreseleccionado) opt.selected = true;
+            selectRaza.appendChild(opt);
+        });
+    }
+
+    // 3. Control de Vistas
     function ocultarTodo() {
         Object.values(vistas).forEach(el => el.classList.add('oculto'));
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -351,63 +374,73 @@
     function mostrarFormularioNuevo() {
         ocultarTodo();
         vistas.anadir.classList.remove('oculto');
+
+        // Resetear tipo a PERRO y cargar sus razas
+        const tipoSelect = document.querySelector('#vistaAñadir select[name="tipo"]');
+        tipoSelect.value = 'PERRO';
+        actualizarComboRazas('#vistaAñadir select[name="tipo"]', '#nuevoRaza');
+
         document.getElementById('previewNuevo').classList.remove('show');
+        document.getElementById('ph-nuevo').style.display = 'block';
     }
 
-    // Función Robustecida: Lee datos del HTML (dataset)
     function cargarDatosYEditar(elemento) {
         ocultarTodo();
-
-        // Obtenemos los datos del atributo data-* del div
         const d = elemento.dataset;
 
+        // Cargar datos básicos
         document.getElementById('editarId').value = d.id;
         document.getElementById('editarNombre').value = d.nombre;
         document.getElementById('editarTipo').value = d.tipo;
-        document.getElementById('editarRaza').value = d.raza;
         document.getElementById('editarEdad').value = d.edad;
         document.getElementById('editarSexo').value = d.sexo;
         document.getElementById('editarLocalizacion').value = d.localizacion;
-
-        // Checkbox (convierte string "true"/"false" a boolean)
         document.getElementById('editarCastrado').checked = (d.castrado === 'true');
 
-        // Imagen Previa
+        // Cargar razas dinámicamente y seleccionar la correcta
+        actualizarComboRazas('#editarTipo', '#editarRaza', d.raza);
+
+        // Imagen
         const imgPreview = document.getElementById('previewEditar');
-        if (d.imagen) {
-            imgPreview.src = '/file/download/' + d.imagen;
-            imgPreview.classList.add('show');
-        } else {
-            imgPreview.classList.remove('show');
-        }
+        imgPreview.src = d.imagen ? '/file/download/' + d.imagen : '';
+        imgPreview.classList.toggle('show', !!d.imagen);
 
         vistas.editar.classList.remove('oculto');
     }
 
+    // 4. Eventos para cuando el usuario cambia el tipo manualmente
+    document.querySelector('#vistaAñadir select[name="tipo"]').addEventListener('change', () => {
+        actualizarComboRazas('#vistaAñadir select[name="tipo"]', '#nuevoRaza');
+    });
+
+    document.getElementById('editarTipo').addEventListener('change', () => {
+        actualizarComboRazas('#editarTipo', '#editarRaza');
+    });
+
+    // 5. Utilidades (Imagen y Borrado)
     function previsualizarImagen(event, imgId) {
         const input = event.target;
         const preview = document.getElementById(imgId);
-
         if (input.files && input.files[0]) {
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = e => {
                 preview.src = e.target.result;
                 preview.classList.add('show');
                 const ph = document.getElementById('ph-nuevo');
                 if(ph) ph.style.display = 'none';
-            }
+            };
             reader.readAsDataURL(input.files[0]);
         }
     }
 
     function confirmarEliminacion() {
-        if(confirm('¿Seguro que quieres eliminar esta mascota? No se puede deshacer.')) {
+        if(confirm('¿Seguro que quieres eliminar esta mascota?')) {
             const id = document.getElementById('editarId').value;
-            // Ruta corregida a tu controller
             window.location.href = '/perfil/eliminar-animal/' + id;
         }
     }
 </script>
+
 
 </body>
 </html>

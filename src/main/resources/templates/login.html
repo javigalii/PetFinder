@@ -1,76 +1,411 @@
 <!DOCTYPE html>
-<html lang="en"
-      xmlns:th="http://www.thymeleaf.org"
->
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Registration and Login System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - Petfinder</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        :root {
+            --primary-orange: #ff5400;
+            --dark-bg: #1a1d29;
+            --card-bg: #23263a;
+            --hover-orange: #ff6d1f;
+            --text-gray: #9ca3af;
+            --border-color: #2d3142;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(180deg, #13151f 0%, #1a1d29 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: #e5e7eb;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* === NAVBAR === */
+        .navbar-dark-custom {
+            background: #13151f;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-orange) !important;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-brand:hover {
+            color: var(--hover-orange) !important;
+        }
+
+        .nav-link {
+            color: var(--text-gray) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+        }
+
+        /* === CONTENEDOR PRINCIPAL === */
+        .login-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        /* === TARJETA DE LOGIN === */
+        .login-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 480px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--hover-orange) 100%);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .login-header i {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .login-header h2 {
+            color: white;
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .login-header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .login-body {
+            padding: 2rem;
+        }
+
+        /* === ALERTAS === */
+        .alert-custom {
+            border-radius: 8px;
+            border: none;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: start;
+            gap: 12px;
+        }
+
+        .alert-custom i {
+            font-size: 1.2rem;
+            margin-top: 2px;
+        }
+
+        .alert-danger-custom {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .alert-danger-custom i {
+            color: #ef4444;
+        }
+
+        .alert-success-custom {
+            background: rgba(34, 197, 94, 0.15);
+            color: #86efac;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .alert-success-custom i {
+            color: #22c55e;
+        }
+
+        /* === FORMULARIO === */
+        .form-label {
+            color: var(--text-gray);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            background: #1a1d29;
+            border: 1px solid var(--border-color);
+            color: #e5e7eb;
+            padding: 0.85rem 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            background: #13151f;
+            border-color: var(--primary-orange);
+            box-shadow: 0 0 0 3px rgba(255, 84, 0, 0.1);
+            color: white;
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: #6b7280;
+        }
+
+        .input-group-icon {
+            position: relative;
+        }
+
+        .input-group-icon i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-gray);
+            z-index: 10;
+        }
+
+        .input-group-icon .form-control {
+            padding-left: 2.75rem;
+        }
+
+        /* === BOTONES === */
+        .btn-login {
+            background: var(--primary-orange);
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: 0.95rem 2rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+            width: 100%;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .btn-login:hover {
+            background: var(--hover-orange);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 84, 0, 0.4);
+            color: white;
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        /* === ENLACES === */
+        .register-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-gray);
+            font-size: 0.95rem;
+        }
+
+        .register-link a {
+            color: var(--primary-orange);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .register-link a:hover {
+            color: var(--hover-orange);
+            text-decoration: underline;
+        }
+
+        /* === DECORACIÓN === */
+        .decoration-dots {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            opacity: 0.1;
+        }
+
+        .decoration-dots::before,
+        .decoration-dots::after {
+            content: '';
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: var(--primary-orange);
+            filter: blur(80px);
+        }
+
+        .decoration-dots::before {
+            top: -100px;
+            left: -100px;
+        }
+
+        .decoration-dots::after {
+            bottom: -100px;
+            right: -100px;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 576px) {
+            .login-header {
+                padding: 2rem 1.5rem;
+            }
+
+            .login-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .login-body {
+                padding: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top" th:fragment="header">
-    <div class="container-fluid">
-        <a class="navbar-brand" th:href="@{/}">Registration and Login System</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark-custom" th:fragment="header">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">
+            <i class="fa-solid fa-paw"></i> Petfinder
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
             <span class="navbar-toggler-icon"></span>
         </button>
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/animales/lista">
+                        <i class="bi bi-grid-fill me-1"></i>Explorar
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/register}">
+                        <i class="bi bi-person-plus-fill me-1"></i>Registrarse
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
 </nav>
-<br />
-<br />
-<br />
-<div class="container">
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <div th:if="${param.error}">
-                <div class="alert alert-danger">Invalid Email and Password.</div>
-            </div>
-            <div th:if="${param.logout}">
-                <div class="alert alert-success">You have been logged out.</div>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="text-center">Login Form</h3>
-                </div>
-                <div class="card-body">
-                    <form
-                            method="post"
-                            th:action="@{/login}"
-                            class="form-horizontal"
-                            role="form"
-                    >
-                        <div class="mb-3">
-                            <label for="username" class="control-label">Email *</label>
-                            <input type="text"
-                                   id="username"
-                                   name="username"
-                                   class="form-control"
-                                   placeholder="Email"
-                            />
-                        </div>
 
-                        <div class="mb-3">
-                            <label for="password" class="control-label">Password *</label>
-                            <input type="password"
-                                   id="password"
-                                   name="password"
-                                   class="form-control"
-                                   placeholder="Password"
-                            />
-                        </div>
+<!-- CONTENEDOR PRINCIPAL -->
+<div class="login-container">
+    <div class="decoration-dots"></div>
 
-                        <div class="mb-3">
-                            <button type="submit" class="btn btn-primary">Login</button>
-                            <span> Not registered?
-                            <a th:href="@{/register}"> Register/SignUp Here</a>
-                        </span>
-                        </div>
-                    </form>
+    <div class="login-card">
+        <!-- HEADER -->
+        <div class="login-header">
+            <i class="bi bi-shield-lock-fill"></i>
+            <h2>Iniciar Sesión</h2>
+            <p>Accede a tu cuenta de Petfinder</p>
+        </div>
+
+        <!-- BODY -->
+        <div class="login-body">
+
+            <!-- ALERTA DE ERROR -->
+            <div th:if="${param.error}" class="alert-custom alert-danger-custom">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                <div>
+                    <strong>Error de autenticación</strong><br>
+                    Email o contraseña incorrectos. Por favor, intenta de nuevo.
                 </div>
             </div>
+
+            <!-- ALERTA DE LOGOUT -->
+            <div th:if="${param.logout}" class="alert-custom alert-success-custom">
+                <i class="bi bi-check-circle-fill"></i>
+                <div>
+                    <strong>Sesión cerrada</strong><br>
+                    Has cerrado sesión correctamente.
+                </div>
+            </div>
+
+            <!-- FORMULARIO -->
+            <form method="post" th:action="@{/login}" role="form">
+
+                <!-- EMAIL -->
+                <div class="mb-4">
+                    <label for="username" class="form-label">Email</label>
+                    <div class="input-group-icon">
+                        <i class="bi bi-envelope-fill"></i>
+                        <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                class="form-control"
+                                placeholder="tu@email.com"
+                                required
+                                autofocus
+                        />
+                    </div>
+                </div>
+
+                <!-- PASSWORD -->
+                <div class="mb-4">
+                    <label for="password" class="form-label">Contraseña</label>
+                    <div class="input-group-icon">
+                        <i class="bi bi-lock-fill"></i>
+                        <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                class="form-control"
+                                placeholder="••••••••"
+                                required
+                        />
+                    </div>
+                </div>
+
+                <!-- BOTÓN SUBMIT -->
+                <button type="submit" class="btn-login">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
+                </button>
+
+                <!-- ENLACE A REGISTRO -->
+                <div class="register-link">
+                    ¿No tienes cuenta?
+                    <a th:href="@{/register}">Regístrate aquí</a>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
 </body>
 </html>

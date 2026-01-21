@@ -1,63 +1,239 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<html lang="es" xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Formulario de noticias</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Noticias - Petfinder</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --primary-orange: #ff5400;
+            --hover-orange: #ff6d1f;
+            --dark-bg: #13151f;
+            --card-bg: #23263a;
+            --input-bg: #1a1d29;
+            --border-color: #2d3142;
+            --text-gray: #9ca3af;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: #e5e7eb;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* === NAVBAR === */
+        .navbar-dark-custom {
+            background: #13151f;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+        .navbar:hover{
+            color: var(--hover-orange);
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            color: var(--primary-orange) !important;
+        }
+
+        /* === FORM CARD === */
+        .form-container {
+            max-width: 800px;
+            margin: 3rem auto;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+
+        .form-header {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        .form-header h1 {
+            font-weight: 800;
+            font-size: 1.75rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* === INPUTS STYLING === */
+        .form-label {
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            background: #151823;
+            border-color: var(--primary-orange);
+            box-shadow: 0 0 0 3px rgba(255, 84, 0, 0.15);
+            color: white;
+        }
+
+        .form-control::placeholder {
+            color: #4b5563;
+        }
+
+        /* Estilo para el input file */
+        .form-control[type="file"] {
+            padding: 0.6rem;
+        }
+        .form-control[type="file"]::file-selector-button {
+            background: var(--border-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0.2rem 0.8rem;
+            margin-right: 1rem;
+            cursor: pointer;
+        }
+        .form-control[type="file"]::file-selector-button:hover {
+            background: #3f445e;
+        }
+
+        /* Estilo para el input date */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1); /* Hace el icono del calendario blanco */
+            cursor: pointer;
+        }
+
+        /* === BUTTONS === */
+        .btn-submit {
+            background: var(--primary-orange);
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-submit:hover {
+            background: var(--hover-orange);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 84, 0, 0.3);
+        }
+
+        .btn-cancel {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-gray);
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel:hover {
+            border-color: white;
+            color: white;
+        }
+
+        .info-box {
+            background: rgba(255, 84, 0, 0.05);
+            border-left: 4px solid var(--primary-orange);
+            padding: 1rem;
+            margin-bottom: 2rem;
+            font-size: 0.85rem;
+            color: var(--text-gray);
+        }
+        .text{
+            color: var(--text-gray);
+        }
+
+    </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg bg-light" >
-    <div class="container-fluid" >
-        <a class="navbar-brand" href="/blog" > Blog</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle ="collapse"
-                data-bs-target ="#navbarNavAltMarkup" aria-controls ="navbarNavAltMarkup" aria-expanded ="false"
-                aria-label="Toggle navigation" >
-            <span class="navbar-toggler-icon" ></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNavAltMarkup" >
-            <div class="navbar-nav" >
-                <a class="nav-link active" aria-current ="page" href="/blog" >Ver
-                    noticias</a>
-                <a class="nav-link" href="/crud/noticias" >CRUD noticias </a>
-                <a class="nav-link" href="/crud/noticias/insertar" >Insertar
-                    noticia</a>
-            </div>
+
+<nav class="navbar navbar-expand-lg navbar-dark-custom">
+    <div class="container">
+        <a class="navbar-brand" href="/blog">Admin Panel</a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link text " href="/blog">Ver Blog</a>
+            <a class="nav-link text" href="/crud/noticias">Gestión CRUD</a>
         </div>
     </div>
 </nav>
-<div class="container my-4">
-    <h1 class="h3 text-primary mb-4 text-success">Formulario de noticias</h1>
 
-    <form th:object="${noticia}" action="/crud/noticias/insertar" method="post" enctype="multipart/form-data" class="p-3 bg-white border rounded">
-        <input type="hidden" th:field="*{id}">
-        <input type="hidden" th:field="*{autor}">
-
-        <div class="mb-3">
-            <label class="form-label">Título</label>
-            <input type="text" th:field="*{titulo}" class="form-control" placeholder="Título de la noticia">
+<div class="container">
+    <div class="form-container">
+        <div class="form-header">
+            <h1>
+                <i class="bi bi-pencil-square text-orange"></i>
+                Editor de Noticias
+            </h1>
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Contenido</label>
-            <textarea th:field="*{contenido}" class="form-control" rows="4" placeholder="Contenido de la noticia"></textarea>
+        <div class="info-box">
+            <i class="bi bi-info-circle me-2"></i>
+            Asegúrate de que la imagen sea en formato JPG o PNG para una mejor visualización.
         </div>
 
-        <div class="mb-3">
-            <label class="form-label">Imagen</label>
-            <input type="file" name="fichero" class="form-control">
+        <form th:object="${noticia}"  th:href="@{/blog}" method="post" enctype="multipart/form-data">
+
+            <input type="hidden" th:field="*{id}">
+            <input type="hidden" th:field="*{autor}">
             <input type="hidden" th:field="*{imagen}" id="imagen">
-        </div>
 
-        <div class="mb-3">
-            <label class="form-label">Fecha</label>
-            <input type="date" th:field="*{fecha}" class="form-control">
-        </div>
+            <div class="mb-4">
+                <label class="form-label">Título de la noticia</label>
+                <input type="text" th:field="*{titulo}" class="form-control"
+                       placeholder="Escribe un título impactante..." required>
+            </div>
 
-        <button type="submit" class="btn btn-primary">Enviar</button>
-        <a th:href="@{/crud/noticias}" class="btn btn-outline-secondary ms-2">Volver al listado</a>
-    </form>
+            <div class="mb-4">
+                <label class="form-label">Contenido detallado</label>
+                <textarea th:field="*{contenido}" class="form-control" rows="8"
+                          placeholder="Desarrolla el cuerpo de la noticia aquí..." required></textarea>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-7">
+                    <label class="form-label">Imagen de cabecera</label>
+                    <input type="file" name="fichero" class="form-control">
+                    <small class="text-muted mt-1 d-block" th:if="*{imagen != null}"
+                           th:text="'Archivo actual: ' + *{imagen}"></small>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label">Fecha de publicación</label>
+                    <input type="date" th:field="*{fecha}" class="form-control" required>
+                </div>
+            </div>
+
+            <hr class="my-4" style="border-color: var(--border-color);">
+
+            <div class="d-flex justify-content-end gap-3 align-items-center">
+                <a th:href="@{/blog}" class="btn-cancel">Cancelar</a>
+                <button type="submit" class="btn-submit">
+                    Guardar Publicación <i class="bi bi-check-lg ms-1"></i>
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

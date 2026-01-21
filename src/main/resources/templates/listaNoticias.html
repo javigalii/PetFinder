@@ -1,42 +1,229 @@
 <!DOCTYPE html>
-<html lang="en"  xmlns:th="https://www.thymeleaf.org">
+<html lang="es" xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Blog</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --primary-orange: #ff5400;
+            --hover-orange: #ff6d1f;
+            --dark-bg: #13151f;
+            --card-bg: #23263a;
+            --border-color: #2d3142;
+            --text-gray: #9ca3af;
+        }
+
+        body {
+            background: var(--dark-bg);
+            color: #e5e7eb;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* === NAVBAR === */
+        .navbar-dark-custom {
+            background: #13151f;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            color: var(--primary-orange) !important;
+        }
+
+        /* === CONTENEDOR CRUD === */
+        .admin-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-top: 3rem;
+        }
+
+        .header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-weight: 800;
+            font-size: 1.75rem;
+            margin: 0;
+            color: white;
+        }
+
+        /* === TABLA PERSONALIZADA === */
+        .table-custom {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+        .table-custom thead th {
+            background: transparent;
+            color: var(--text-gray);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            padding: 1rem;
+            border: none;
+        }
+
+        .table-custom tbody tr {
+            background: var(--input-bg); /* Un tono más oscuro que el card */
+            background: rgba(26, 29, 41, 0.6);
+            transition: all 0.2s;
+        }
+
+        .table-custom tbody tr:hover {
+            background: rgba(255, 84, 0, 0.05);
+            transform: scale(1.005);
+        }
+
+        .table-custom td {
+            padding: 1.2rem 1rem;
+            vertical-align: middle;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table-custom td:first-child {
+            border-left: 1px solid var(--border-color);
+            border-radius: 12px 0 0 12px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .table-custom td:last-child {
+            border-right: 1px solid var(--border-color);
+            border-radius: 0 12px 12px 0;
+        }
+
+        /* === BOTONES ACCIÓN === */
+        .btn-add {
+            background: var(--primary-orange);
+            border: none; color: white; font-weight: 700;
+            padding: 0.6rem 1.2rem; border-radius: 8px;
+            text-decoration: none; transition: 0.2s;
+        }
+        .btn-add:hover {
+            background: var(--hover-orange);
+            color: white; transform: translateY(-2px);
+        }
+
+        .action-link {
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: 0.2s;
+        }
+
+        .link-edit {
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+        }
+        .link-edit:hover { background: #38bdf8; color: white; }
+
+        .link-delete {
+            color: #fb7185;
+            background: rgba(251, 113, 133, 0.1);
+        }
+        .link-delete:hover { background: #fb7185; color: white; }
+
+        .badge-id {
+            background: #2d3142;
+            color: var(--text-gray);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin-right: 10px;
+        }
+    </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg bg-light" >
-    <div class="container-fluid" >
-        <a class="navbar-brand" href="/blog" > Blog</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle ="collapse"
-                data-bs-target ="#navbarNavAltMarkup" aria-controls ="navbarNavAltMarkup" aria-expanded ="false"
-                aria-label="Toggle navigation" >
-            <span class="navbar-toggler-icon" ></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNavAltMarkup" >
-            <div class="navbar-nav" >
-                <a class="nav-link active" aria-current ="page" href="/blog" >Ver
-                    noticias</a>
-                <a class="nav-link" href="/crud/noticias" >CRUD noticias </a>
-                <a class="nav-link" href="/crud/noticias/insertar" >Insertar
-                    noticia</a>
-            </div>
+
+<nav class="navbar navbar-expand-lg navbar-dark-custom">
+    <div class="container">
+        <a class="navbar-brand" href="/blog">Blog Admin</a>
+        <div class="navbar-nav ms-auto flex-row gap-3">
+            <a class="nav-link" href="/blog">Vista Pública</a>
+            <a class="nav-link active" href="/crud/noticias">Gestión</a>
         </div>
     </div>
 </nav>
-    <h1>Listado del CRUD de noticias</h1>
-    <p><a href="/crud/noticias/insertar">Insertar noticias</a></p>
-    <table class ="table table-striped table-hover ">
-        <tr>
-            <th>Titulo</th><th>Modificar</th><th>Eliminar</th>
-        </tr>
-        <tr th:each="noticia : ${noticias}">
-            <td th:text="${noticia.titulo}"></td>
-            <td><a th:text="Modificar" th:href="${'/crud/noticias/modificar/'+noticia.id}"></a></td>
-            <td><a th:text="Eliminar" th:href="${'/crud/noticias/eliminar/'+noticia.id}"></a></td>
-        </tr>
-    </table>
+
+<div class="container">
+    <div class="admin-container">
+        <div class="header-flex">
+            <div>
+                <h1>Gestión de Noticias</h1>
+                <p class="text-muted mb-0">Administra las publicaciones del sistema</p>
+            </div>
+            <a th:href="@{/crud/noticias/insertar}" class="btn-add">
+                <i class="bi bi-plus-lg me-2"></i>Nueva Noticia
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                <tr>
+                    <th style="width: 60%;">Título de la Publicación</th>
+                    <th class="text-center">Modificar</th>
+                    <th class="text-center">Eliminar</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="noticia : ${noticias}">
+                    <td>
+                        <span class="badge-id" th:text="${'#' + noticia.id}">#1</span>
+                        <span th:text="${noticia.titulo}">Título de la noticia</span>
+                    </td>
+                    <td class="text-center">
+                        <a th:href="@{'/crud/noticias/modificar/'+${noticia.id}}" class="action-link link-edit">
+                            <i class="bi bi-pencil-square"></i> Editar
+                        </a>
+                    </td>
+                    <td class="text-center">
+                        <a th:href="@{'/crud/noticias/eliminar/'+${noticia.id}}"
+                           class="action-link link-delete"
+                           onclick="return confirm('¿Estás seguro de que deseas eliminar esta noticia?')">
+                            <i class="bi bi-trash3"></i> Eliminar
+                        </a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(noticias)}">
+                    <td colspan="3" class="text-center text-muted py-5">
+                        No hay noticias registradas en la base de datos.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-4 text-center">
+        <a th:href="@{/}" class="text-decoration-none text-muted small">
+            <i class="bi bi-house-door me-1"></i> Volver a la página principal
+        </a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

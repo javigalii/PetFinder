@@ -1,66 +1,237 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<html lang="es" xmlns:th="https://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>Title</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Petfinder - Noticias y Blog</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <style>
+    :root {
+      --primary-orange: #ff5400;
+      --hover-orange: #ff6d1f;
+      --dark-bg: #13151f;
+      --card-bg: #23263a;
+      --border-color: #2d3142;
+      --text-gray: #9ca3af;
+    }
+
+    body {
+      background: var(--dark-bg);
+      background-image: radial-gradient(circle at top right, rgba(255, 84, 0, 0.05), transparent 40%);
+      color: #e5e7eb;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+    }
+
+    /* === NAVBAR === */
+    .navbar-dark-custom {
+      background: #13151f;
+      border-bottom: 1px solid var(--border-color);
+      padding: 1rem 0;
+    }
+
+    .navbar-brand {
+      font-weight: 800;
+      color: var(--primary-orange) !important;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .nav-link {
+      color: var(--text-gray) !important;
+      transition: color 0.2s;
+    }
+
+    .nav-link:hover, .nav-link.active { color: white !important; }
+
+    /* === BLOG CARDS === */
+    .blog-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      margin-bottom: 2rem;
+    }
+
+    .blog-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(255, 84, 0, 0.4);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .blog-img-container {
+      position: relative;
+      height: 100%;
+      min-height: 200px;
+      overflow: hidden;
+    }
+
+    .blog-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .blog-card:hover .blog-img {
+      transform: scale(1.05);
+    }
+
+    .blog-content {
+      padding: 1.5rem 2rem;
+    }
+
+    .blog-title a {
+      color: white;
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 1.4rem;
+      transition: color 0.2s;
+    }
+
+    .blog-title a:hover {
+      color: var(--primary-orange);
+    }
+
+    .blog-excerpt {
+      color: var(--text-gray);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .meta-info {
+      font-size: 0.85rem;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .meta-info i { color: var(--primary-orange); }
+
+    /* === LIKE BUTTONS === */
+    .btn-like {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: #f87171;
+      border-radius: 50px;
+      padding: 5px 15px;
+      font-weight: 600;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-like:hover {
+      background: #ef4444;
+      color: white;
+      border-color: #ef4444;
+    }
+
+    .btn-like.active {
+      background: #ef4444;
+      color: white;
+      border-color: #ef4444;
+    }
+
+    .like-count {
+      background: #2d3142;
+      color: white;
+      padding: 5px 12px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .section-header h1 {
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+  </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg bg-light" >
-  <div class="container-fluid" >
-    <a class="navbar-brand" href="/blog" > Blog</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle ="collapse"
-            data-bs-target ="#navbarNavAltMarkup" aria-controls ="navbarNavAltMarkup" aria-expanded ="false"
-            aria-label="Toggle navigation" >
-      <span class="navbar-toggler-icon" ></span>
+
+<nav class="navbar navbar-expand-lg navbar-dark-custom sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="/blog">
+      <i class="fa-solid fa-paw"></i> Petfinder Blog
+    </a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navBlog">
+      <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup" >
-      <div class="navbar-nav" >
-        <a class="nav-link active" aria-current ="page" href="/blog" >Ver
-          noticias</a>
-        <a class="nav-link" href="/crud/noticias" >CRUD noticias </a>
-        <a class="nav-link" href="/crud/noticias/insertar" >Insertar
-          noticia</a>
+    <div class="collapse navbar-collapse" id="navBlog">
+      <div class="navbar-nav ms-auto">
+        <a class="nav-link " href="/animales/lista">Explorar</a>
+        <a class="nav-link active" href="/blog">Noticias</a>
+        <a class="nav-link" href="/crud/noticias">Gestionar tus Noticias</a>
+        <a class="nav-link" href="/crud/noticias/insertar">
+          <i class="bi bi-plus-lg me-1"></i> Nueva noticia
+          <a class="nav-link" href="/perfil">Mi Perfil</a>
+          <a class="nav-link" href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Salir</a>
+        </a>
       </div>
     </div>
   </div>
 </nav>
+
 <div class="container my-5">
-  <h1 class="display-5 text-center text-primary mb-5 text-success">Noticias recientes</h1>
+  <div class="section-header text-center mb-5">
+    <h1 class="display-4 text-white">Noticias <span style="color: var(--primary-orange);">recientes</span></h1>
+    <p class="text">Consejos, historias y novedades sobre el mundo animal</p>
+  </div>
 
-  <div class="row justify-content-center" th:each="noticia : ${noticias}">
-    <div class="col-12 col-md-10 col-lg-8 mb-4">
-      <div class="card shadow-sm border-0 rounded-3">
-        <div class="row g-0 align-items-center">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+
+      <div class="blog-card" th:each="noticia : ${noticias}">
+        <div class="row g-0">
           <div class="col-md-4">
-            <img th:src="${'/file/download/' + noticia.imagen}" class="img-fluid rounded-start" alt="Imagen de la noticia">
+            <div class="blog-img-container">
+              <img th:src="${'/file/download/' + noticia.imagen}" class="blog-img" alt="Imagen de la noticia">
+            </div>
           </div>
-          <div class="col-md-8">
-            <div class="card-body">
-              <h2 class="card-title h4 mb-2">
-                <a th:href="${'/noticia/' + noticia.id}"
-                   th:text="${noticia.titulo}"
-                   class="text-decoration-none text-success">
-                </a>
-              </h2>
-              <p class="card-text mb-2" th:text="${#strings.abbreviate(noticia.contenido, 130)}"></p>
-              <p class="card-text">
-                <small class="text-muted">
-                  <span th:text="${noticia.autor.email}"></span><br>
-                  <span th:text="${#dates.format(noticia.fecha, 'dd-MM-yyyy')}"></span>
-                </small>
-              </p>
-              <p class="d-flex align-items-center gap-2">
-                <a th:href="${'/megusta/' + noticia.id}"
-                   th:text="${noticia.leGustaAlUsuarioActivo}"
-                   class="btn btn-sm btn-outline-danger rounded-pill px-3">
-                </a>
+          <div class="col-md-8 d-flex align-items-center">
+            <div class="blog-content w-100">
 
-                <span th:text="${noticia.cantidadMegusta}"
-                      class="badge bg-danger text-light fs-6">
-                                </span>
-              </p>
+              <div class="meta-info mb-2">
+                <span><i class="bi bi-person-circle me-1"></i> <span th:text="${noticia.autor.email}">Autor</span></span>
+                <span><i class="bi bi-calendar3 me-1"></i> <span th:text="${#dates.format(noticia.fecha, 'dd MMM, yyyy')}">Fecha</span></span>
+              </div>
+
+              <h2 class="blog-title mb-3">
+                <a th:href="${'/noticia/' + noticia.id}" th:text="${noticia.titulo}">Título de la noticia</a>
+              </h2>
+
+              <p class="blog-excerpt mb-4" th:text="${#strings.abbreviate(noticia.contenido, 130)}"></p>
+
+              <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center gap-3">
+                  <a th:href="${'/megusta/' + noticia.id}"
+                     class="btn-like"
+                     th:classappend="${noticia.leGustaAlUsuarioActivo == 'Quitar me gusta'} ? 'active' : ''">
+                    <i class="bi bi-heart-fill me-1"></i>
+                    <span th:text="${noticia.leGustaAlUsuarioActivo == 'Dar me gusta' ? 'Me gusta' : 'Te gusta'}"></span>
+                  </a>
+
+                  <span class="like-count">
+                    <i class="bi bi-fire text-warning me-1"></i>
+                    <span th:text="${noticia.cantidadMegusta}">0</span>
+                  </span>
+                </div>
+
+                <a th:href="${'/noticia/' + noticia.id}" class="btn btn-link text-decoration-none p-0 text-white fw-bold">
+                  Leer más <i class="bi bi-chevron-right ms-1"></i>
+                </a>
+              </div>
+
             </div>
           </div>
         </div>
@@ -68,6 +239,6 @@
     </div>
   </div>
 </div>
-</div>
+
 </body>
 </html>
