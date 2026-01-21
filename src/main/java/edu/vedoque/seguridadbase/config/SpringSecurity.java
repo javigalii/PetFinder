@@ -29,7 +29,7 @@ public class SpringSecurity {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((authorize) -> authorize
                         // 1. RECURSOS ESTÁTICOS (Siempre públicos)
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/blog").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/blog", "/").permitAll()
 
                         // 2. PÁGINAS PÚBLICAS (Login, Registro, Inicio)
                         .requestMatchers("/register/**", "/index", "/", "/inicio").permitAll()
