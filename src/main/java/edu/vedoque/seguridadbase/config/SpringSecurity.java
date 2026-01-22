@@ -36,7 +36,7 @@ public class SpringSecurity {
                         .requestMatchers("/file/download/**").permitAll()
 
                         // 3. ANIMALES (El catálogo y los detalles son públicos para que la gente se anime a adoptar)
-                        .requestMatchers("/animales/lista", "/animales/detalle/**", "/perfil/usuario/**").permitAll()
+                        .requestMatchers("/", "/animales/detalle/**", "/perfil/usuario/**").permitAll()
 
                         // 4. SOLO ADMINISTRADORES
                         .requestMatchers("/users").hasRole("ADMIN")
@@ -56,7 +56,7 @@ public class SpringSecurity {
                                 .loginPage("/login")
                                 .loginProcessingUrl("/login")
                                 // Al entrar correctamente, te lleva a la lista de animales
-                                .defaultSuccessUrl("/animales/lista")
+                                .defaultSuccessUrl("/")
                                 .permitAll()
                 ).logout(
                         logout -> logout
