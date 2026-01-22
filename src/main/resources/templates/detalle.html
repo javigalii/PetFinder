@@ -207,7 +207,7 @@
             <div class="user-card" th:if="${animal.usuario != null}">
                 <h4 class="text-white mb-3">Publicado por</h4>
 
-                <a th:href="@{/perfil/usuario/{id}(id=${animal.usuario.id})}" class="text-decoration-none">
+                <a th:href="@{/usuario/{id}(id=${animal.usuario.id})}" class="text-decoration-none">
                     <div class="d-flex align-items-center gap-3 p-2 rounded hover-effect" style="transition: background 0.3s;">
 
                         <img th:if="${animal.usuario.fotoUrl != null && !animal.usuario.fotoUrl.isEmpty()}"
@@ -283,7 +283,7 @@
 
                 <hr class="border-secondary my-4">
 
-                <a th:href="@{/animales/megusta/{id}(id=${animal.id})}"
+                <a th:href="@{/megusta/{id}(id=${animal.id})}"
                    class="btn-like-large"
                    th:classappend="${animal.likedByCurrentUser} ? 'active' : ''">
                     <i th:class="${animal.likedByCurrentUser} ? 'fa-solid fa-heart me-2' : 'fa-regular fa-heart me-2'"></i>

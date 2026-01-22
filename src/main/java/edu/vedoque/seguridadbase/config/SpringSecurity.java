@@ -28,35 +28,44 @@ public class SpringSecurity {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests((authorize) -> authorize
-                        // 1. RECURSOS ESTÁTICOS (Siempre públicos)
+                        // 1. RECURSOS ESTÁTICOS (Públicos)
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/blog", "/").permitAll()
 
-                        // 2. PÁGINAS PÚBLICAS (Login, Registro, Inicio)
-                        .requestMatchers("/register/**", "/index", "/", "/inicio").permitAll()
+                        // 2. LOGIN, REGISTRO Y HOME (Públicos)
+                        .requestMatchers("/register/**", "/index", "/", "/inicio", "/error").permitAll()
                         .requestMatchers("/file/download/**").permitAll()
 
-                        // 3. ANIMALES (El catálogo y los detalles son públicos para que la gente se anime a adoptar)
-                        .requestMatchers("/", "/animales/detalle/**", "/perfil/usuario/**").permitAll()
+                        // 3. ANIMALES PÚBLICOS (Ver catálogo y detalles)
+                        // Ojo: "/perfil/usuario/**" es para ver el perfil público de otro usuario
+                        .requestMatchers("/detalle/**", "/usuario/**").permitAll()
 
                         // 4. SOLO ADMINISTRADORES
                         .requestMatchers("/users").hasRole("ADMIN")
 
-                        // 5. ZONA PRIVADA (Requiere estar logueado)
-                        // A. Acciones sobre animales
-                        .requestMatchers("/animales/megusta/**", "/animales/favoritos", "/animales/detalle/**").authenticated()
+                        // 5. ZONA PRIVADA (Rutas que requieren estar logueado)
+                        // A. Acciones sobre animales (Likes y favoritos)
+                        .requestMatchers("/megusta/**", "/favoritos").authenticated()
 
-                        // B. PERFIL DE USUARIO (Ver, Editar, Guardar)
-                        // El ** incluye /perfil/, /perfil/editar y /perfil/guardar
-                        .requestMatchers("/perfil/**").authenticated()
+                        // B. PERFIL Y GESTIÓN (AQUÍ ESTÁN LOS CAMBIOS)
+                        // Como quitaste "/perfil/" del controlador, ahora tienes que listar las rutas sueltas:
+                        .requestMatchers(
+                                "/perfil",               // Ver mi perfil
+                                "/editar",               // Formulario editar usuario
+                                "/guardar",              // Guardar usuario
+                                "/anadir-animal",        // Formulario añadir animal
+                                "/guardar-animal",       // Guardar animal nuevo
+                                "/editar-animal/**",     // Formulario editar animal
+                                "/actualizar-animal",    // Guardar cambios animal
+                                "/eliminar-animal/**"    // Borrar animal
+                        ).authenticated()
 
-                        // 6. RUTAS ANTIGUAS (Noticias)
-                        .requestMatchers("/crud/noticias/**", "/noticia/**", "/comentario/insertar", "/megusta/**", "/crud/noticias/insertar").authenticated()
+                        // 6. RUTAS ANTIGUAS (Si alguna te queda)
+                        .requestMatchers("/crud/noticias/**", "/noticia/**", "/comentario/insertar", "/megusta/**").authenticated()
                 ).formLogin(
                         form -> form
                                 .loginPage("/login")
                                 .loginProcessingUrl("/login")
-                                // Al entrar correctamente, te lleva a la lista de animales
-                                .defaultSuccessUrl("/")
+                                .defaultSuccessUrl("/", true) // Redirige al inicio (lista de animales)
                                 .permitAll()
                 ).logout(
                         logout -> logout

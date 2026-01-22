@@ -132,7 +132,7 @@
                         <div class="info-item"><i class="bi bi-envelope-fill"></i> <span th:text="${usuario.email}">email</span></div>
                     </div>
 
-                    <a href="/perfil/editar" class="btn-edit-profile">
+                    <a href="/editar" class="btn-edit-profile">
                         <i class="bi bi-pencil-fill me-2"></i>Editar perfil
                     </a>
                 </div>
@@ -193,7 +193,7 @@
                 <button class="btn-back" onclick="volverAPerfil()"><i class="bi bi-arrow-left"></i> Volver</button>
             </div>
 
-            <form th:action="@{/perfil/guardar-animal}" method="post" enctype="multipart/form-data">
+            <form th:action="@{/guardar-animal}" method="post" enctype="multipart/form-data">
                 <div class="row">
                     <div class="col-lg-6">
                         <div class="mb-4">
@@ -261,7 +261,7 @@
                 <button class="btn-back" onclick="volverAPerfil()"><i class="bi bi-arrow-left"></i> Volver</button>
             </div>
 
-            <form th:action="@{/perfil/actualizar-animal}" method="post" enctype="multipart/form-data">
+            <form th:action="@{/actualizar-animal}" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="id" id="editarId">
 
                 <div class="row">
@@ -436,7 +436,7 @@
     function confirmarEliminacion() {
         if(confirm('¿Seguro que quieres eliminar esta mascota?')) {
             const id = document.getElementById('editarId').value;
-            window.location.href = '/perfil/eliminar-animal/' + id;
+            window.location.href = '/eliminar-animal/' + id;
         }
     }
 </script>

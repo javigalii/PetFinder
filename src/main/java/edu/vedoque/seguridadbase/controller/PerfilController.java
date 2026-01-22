@@ -27,7 +27,6 @@ public class PerfilController {
     @Autowired
     private RepositorioAnimales repoAnimales;
 
-    // INYECTAMOS EL SERVICIO DE FICHEROS
     @Autowired
     private FileProcessingService fileProcessingService;
 
@@ -37,6 +36,13 @@ public class PerfilController {
         if(auth == null) return "redirect:/login";
 
         User usuario = userService.findByEmail(auth.getName());
+
+        // --- PROTECCIÓN ANTI-ERROR (Si borras la BD y tienes cookie vieja) ---
+        if (usuario == null) {
+            return "redirect:/logout";
+        }
+        // --------------------------------------------------------------------
+
         model.addAttribute("usuario", usuario);
 
         List<Animal> misAnimales = repoAnimales.findByUsuario(usuario);
@@ -53,51 +59,40 @@ public class PerfilController {
         User usuario = userService.findByEmail(auth.getName());
         model.addAttribute("usuario", usuario);
 
-        return "/editarPerfil";
+        return "editarPerfil"; // Quitamos la barra inicial (opcional pero recomendable)
     }
 
-    // 3. GUARDAR LOS CAMBIOS DEL USUARIO (CON FOTO)
+    // 3. GUARDAR LOS CAMBIOS DEL USUARIO
     @PostMapping("/guardar")
     public String guardarPerfil(@ModelAttribute User usuarioForm,
-                                @RequestParam("fichero") MultipartFile fichero, // <--- Nuevo parámetro
+                                @RequestParam("fichero") MultipartFile fichero,
                                 Authentication auth) {
         if(auth == null) return "redirect:/login";
 
-        // Recuperamos el usuario real de la base de datos
         User usuarioReal = userService.findByEmail(auth.getName());
+        if(usuarioReal == null) return "redirect:/logout"; // Protección extra
 
-        // Actualizamos datos de texto
         usuarioReal.setNombrePila(usuarioForm.getNombrePila());
         usuarioReal.setLocalizacion(usuarioForm.getLocalizacion());
         usuarioReal.setDescripcion(usuarioForm.getDescripcion());
 
-        // GESTIÓN DE LA FOTO DE PERFIL
         if (!fichero.isEmpty()) {
             try {
-                // 1. Sacamos la extensión (jpg, png...)
                 String nombreOriginal = fichero.getOriginalFilename();
-                String extension = "jpg"; // por defecto
+                String extension = "jpg";
                 if (nombreOriginal != null && nombreOriginal.contains(".")) {
                     extension = nombreOriginal.substring(nombreOriginal.lastIndexOf(".") + 1);
                 }
-
-                // 2. Creamos un nombre único: perfil-IDUSUARIO.extensión
                 String nombreImagen = "perfil-" + usuarioReal.getId() + "." + extension;
-
-                // 3. Subimos el archivo
                 fileProcessingService.uploadFile(fichero, nombreImagen);
-
-                // 4. Guardamos el nombre en la base de datos
                 usuarioReal.setFotoUrl(nombreImagen);
-
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        // Si fichero.isEmpty(), no hacemos nada y mantenemos la foto anterior
-
         userRepository.save(usuarioReal);
 
+        // CORRECCIÓN IMPORTANTE: Redirigimos, no mostramos la vista directamente
         return "redirect:/perfil";
     }
 
@@ -106,54 +101,41 @@ public class PerfilController {
     public String formularioAnadir(Model model, Authentication auth) {
         if(auth == null) return "redirect:/login";
         model.addAttribute("animal", new Animal());
-        return "/anadirAnimal";
+        return "anadirAnimal";
     }
 
-    // 5. GUARDAR NUEVO ANIMAL (CON SUBIDA DE IMAGEN)
+    // 5. GUARDAR NUEVO ANIMAL
     @PostMapping("/guardar-animal")
     public String guardarNuevoAnimal(@ModelAttribute Animal animal,
-                                     @RequestParam("fichero") MultipartFile fichero, // <--- Nuevo parámetro
+                                     @RequestParam("fichero") MultipartFile fichero,
                                      Authentication auth) {
         if(auth == null) return "redirect:/login";
 
         User usuario = userService.findByEmail(auth.getName());
-        animal.setUsuario(usuario);
+        if(usuario == null) return "redirect:/logout";
 
-        // Primero guardamos para generar el ID
+        animal.setUsuario(usuario);
         repoAnimales.save(animal);
 
-        // Si el usuario ha subido una foto...
         if (!fichero.isEmpty()) {
             try {
-                // Generamos un nombre único: animal-ID.extension
                 String nombreOriginal = fichero.getOriginalFilename();
-                String extension = "";
-                if (nombreOriginal != null && nombreOriginal.contains(".")) {
-                    extension = nombreOriginal.substring(nombreOriginal.lastIndexOf(".") + 1);
-                } else {
-                    extension = "jpg"; // Extensión por defecto si falla
-                }
+                String extension = (nombreOriginal != null && nombreOriginal.contains(".")) ?
+                        nombreOriginal.substring(nombreOriginal.lastIndexOf(".") + 1) : "jpg";
 
                 String nombreImagen = "animal-" + animal.getId() + "." + extension;
-
-                // Subimos el archivo usando tu servicio
                 fileProcessingService.uploadFile(fichero, nombreImagen);
-
-                // Guardamos el nombre del fichero en el campo imagenUrl
                 animal.setImagenUrl(nombreImagen);
-
-                // Actualizamos el animal en la BD
                 repoAnimales.save(animal);
-
             } catch (Exception e) {
-                e.printStackTrace(); // O manejar error
+                e.printStackTrace();
             }
         } else {
-            // Si no sube foto, ponemos una por defecto
             animal.setImagenUrl("default-pet.png");
             repoAnimales.save(animal);
         }
 
+        // CORRECCIÓN IMPORTANTE
         return "redirect:/perfil";
     }
 
@@ -165,9 +147,10 @@ public class PerfilController {
         User usuario = userService.findByEmail(auth.getName());
         Animal animal = repoAnimales.findById(id).orElse(null);
 
-        if (animal != null && animal.getUsuario().getId().equals(usuario.getId())) {
+        if (animal != null && usuario != null && animal.getUsuario().getId().equals(usuario.getId())) {
             repoAnimales.delete(animal);
         }
+        // CORRECCIÓN IMPORTANTE
         return "redirect:/perfil";
     }
 
@@ -179,25 +162,24 @@ public class PerfilController {
         User usuario = userService.findByEmail(auth.getName());
         Animal animal = repoAnimales.findById(id).orElse(null);
 
-        if (animal != null && animal.getUsuario().getId().equals(usuario.getId())) {
+        if (animal != null && usuario != null && animal.getUsuario().getId().equals(usuario.getId())) {
             model.addAttribute("animal", animal);
-            return "/editarAnimal";
+            return "editarAnimal";
         }
         return "redirect:/perfil";
     }
 
-    // 8. ACTUALIZAR ANIMAL (CON SUBIDA DE IMAGEN)
+    // 8. ACTUALIZAR ANIMAL
     @PostMapping("/actualizar-animal")
     public String actualizarAnimal(@ModelAttribute Animal animalForm,
-                                   @RequestParam("fichero") MultipartFile fichero, // <--- Nuevo parámetro
+                                   @RequestParam("fichero") MultipartFile fichero,
                                    Authentication auth) {
         if(auth == null) return "redirect:/login";
 
         User usuario = userService.findByEmail(auth.getName());
         Animal animalExistente = repoAnimales.findById(animalForm.getId()).orElse(null);
 
-        if(animalExistente != null && animalExistente.getUsuario().getId().equals(usuario.getId())) {
-            // Actualizamos datos básicos
+        if(animalExistente != null && usuario != null && animalExistente.getUsuario().getId().equals(usuario.getId())) {
             animalExistente.setNombre(animalForm.getNombre());
             animalExistente.setTipo(animalForm.getTipo());
             animalExistente.setRaza(animalForm.getRaza());
@@ -206,25 +188,20 @@ public class PerfilController {
             animalExistente.setLocalizacion(animalForm.getLocalizacion());
             animalExistente.setCastrado(animalForm.isCastrado());
 
-            // GESTIÓN DE LA IMAGEN EN EDICIÓN
             if (!fichero.isEmpty()) {
-                // Si sube nueva foto, la procesamos y sobrescribimos la anterior
                 String nombreOriginal = fichero.getOriginalFilename();
                 String extension = "jpg";
                 if(nombreOriginal != null && nombreOriginal.contains(".")) {
                     extension = nombreOriginal.substring(nombreOriginal.lastIndexOf(".") + 1);
                 }
-
                 String nombreImagen = "animal-" + animalExistente.getId() + "." + extension;
-
                 fileProcessingService.uploadFile(fichero, nombreImagen);
                 animalExistente.setImagenUrl(nombreImagen);
             }
-            // Si fichero.isEmpty(), NO tocamos animalExistente.imagenUrl (se queda la vieja)
-
             repoAnimales.save(animalExistente);
         }
 
+        // CORRECCIÓN IMPORTANTE
         return "redirect:/perfil";
     }
 
@@ -238,6 +215,6 @@ public class PerfilController {
         model.addAttribute("usuarioPublico", usuario);
         model.addAttribute("animalesPublicos", animalesUsuario);
 
-        return "/verPerfilPublico";
+        return "verPerfilPublico";
     }
 }

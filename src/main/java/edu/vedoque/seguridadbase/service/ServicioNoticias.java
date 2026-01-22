@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ServicioNoticias {
@@ -33,7 +34,7 @@ public class ServicioNoticias {
 
         noticiaDto.setCantidadMegusta(repositorioMeGusta.countMeGustaByNoticia(noticia));
         // Consigo la lista de MeGusta que le ha dado el usuario a esta noticia
-        ArrayList<MeGusta> auxLista = repositorioMeGusta.findByNoticiaAndUsuario(noticia, usuario);
+        List<MeGusta> auxLista = repositorioMeGusta.findByNoticiaAndUsuario(noticia, usuario);
         // Si la lista contiene algo, pongo que la noticia si le gusta al usuario
         if(auxLista.size() > 0){
             noticiaDto.setLeGustaAlUsuarioActivo("❤\uFE0F");

@@ -7,9 +7,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 public interface RepositorioMeGusta extends JpaRepository<MeGusta, Long> {
     int countMeGustaByNoticia(Noticia noticia);
-    ArrayList<MeGusta> findByNoticiaAndUsuario(Noticia noticia, User usuario);
+    List<MeGusta> findByNoticiaAndUsuario(Noticia noticia, User usuario);
+    long countByNoticia(Noticia noticia);
+
 }

@@ -15,7 +15,7 @@
         </div>
         <div class="card-body p-4">
 
-            <form th:action="@{/perfil/guardar-animal}" method="post" th:object="${animal}" enctype="multipart/form-data">
+            <form th:action="@{/guardar-animal}" method="post" th:object="${animal}" enctype="multipart/form-data">
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
@@ -71,7 +71,7 @@
                 </div>
 
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                    <a href="/perfil/" class="btn btn-secondary me-md-2">Cancelar</a>
+                    <a href="/" class="btn btn-secondary me-md-2">Cancelar</a>
                     <button type="submit" class="btn btn-success px-4">Publicar Anuncio</button>
                 </div>
 

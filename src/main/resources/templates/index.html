@@ -260,7 +260,7 @@
                                 <i class="bi bi-tag-fill me-1"></i><span th:text="${animal.raza}">Raza</span>
                             </span>
 
-                            <a th:href="@{/animales/megusta/{id}(id=${animal.id})}"
+                            <a th:href="@{/megusta/{id}(id=${animal.id})}"
                                class="like-btn-floating"
                                th:classappend="${animal.likedByCurrentUser} ? 'active' : ''"
                                title="Me gusta">
@@ -268,7 +268,7 @@
                             </a>
 
                             <div class="quick-action-overlay">
-                                <a th:href="@{/animales/detalle/{id}(id=${animal.id})}" class="btn btn-quick-adopt">
+                                <a th:href="@{/detalle/{id}(id=${animal.id})}" class="btn btn-quick-adopt">
                                     <i class="fa-solid fa-eye me-2"></i>Ver Detalles
                                 </a>
                             </div>

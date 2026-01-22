@@ -1,7 +1,5 @@
 package edu.vedoque.seguridadbase.controller;
 
-
-import edu.vedoque.seguridadbase.dto.NoticiaDto;
 import edu.vedoque.seguridadbase.entity.Comentario;
 import edu.vedoque.seguridadbase.entity.MeGusta;
 import edu.vedoque.seguridadbase.entity.Noticia;
@@ -9,8 +7,8 @@ import edu.vedoque.seguridadbase.entity.User;
 import edu.vedoque.seguridadbase.repository.RepositorioCometario;
 import edu.vedoque.seguridadbase.repository.RepositorioMeGusta;
 import edu.vedoque.seguridadbase.repository.RepositorioNoticias;
-import edu.vedoque.seguridadbase.service.ServicioNoticias;
 import edu.vedoque.seguridadbase.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
@@ -23,10 +21,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 public class MainController {
+
     @Autowired
     private RepositorioNoticias repositorioNoticias;
     @Autowired
@@ -35,80 +34,114 @@ public class MainController {
     private UserService userService;
     @Autowired
     private RepositorioMeGusta repositorioMeGusta;
-    @Autowired
-    ServicioNoticias servicioNoticias;
 
+    // He quitado ServicioNoticias porque ahora usamos la Entidad directamente y no hacía falta.
+
+    // 1. LISTADO DE NOTICIAS (BLOG)
     @GetMapping("/blog")
     public String index(Model model, Authentication authentication) {
-        User usuario=null;
+
+        // Cargar noticias ordenadas por fecha descendente (lo más nuevo arriba)
+        List<Noticia> listaNoticias = repositorioNoticias.findAll(Sort.by(Sort.Direction.DESC, "fecha"));
+
+        User usuario = null;
         if(authentication != null) {
             usuario = userService.findByEmail(authentication.getName());
         }
 
-        ArrayList<NoticiaDto> listaDto = new ArrayList<>();
-        ArrayList<Noticia> listaNoticias = (ArrayList<Noticia>) repositorioNoticias.findAll();
-        for  (Noticia noticia : listaNoticias) {
-            if(usuario!=null) {
-                listaDto.add(servicioNoticias.toDto(noticia, usuario));
-            }else{
-                listaDto.add(servicioNoticias.toDto(noticia, usuario));
-            }
+        // Calculamos los likes para cada noticia
+        for (Noticia noticia : listaNoticias) {
 
+            // 1. Calcular el número total de likes (para que se vea el numerito)
+            // Hacemos cast a (int) porque el count devuelve long
+            noticia.setCantidadMegusta((int) repositorioMeGusta.countByNoticia(noticia));
+
+            // 2. Si el usuario está conectado, vemos si él le dio like
+            if(usuario != null) {
+                List<MeGusta> likes = repositorioMeGusta.findByNoticiaAndUsuario(noticia, usuario);
+                noticia.setLikedByCurrentUser(!likes.isEmpty());
+            }
         }
-        model.addAttribute( "noticias", listaDto);
+
+        model.addAttribute("noticias", listaNoticias);
         return "blog";
     }
 
+    // 2. VER NOTICIA EN DETALLE
     @GetMapping("/noticia/{id}")
-    public String noticia(Model model, @PathVariable long id) {
-        // Recupero la noticia que tiene como id el que me pasan en la url como pathvariable
-        Noticia noticia = repositorioNoticias.findById(id).get();
-        // Añado ese noticia al modelo para que esté disponible en la vista
-        model.addAttribute("noticia", repositorioNoticias.findById(id).get());
-        // Usando la noticia recupero todos los comentarios relacionados y los pongo en el modelo para que estén disponibles en la vista
+    public String noticia(Model model, @PathVariable long id, Authentication authentication) {
+
+        // Usamos orElse(null) para no romper la web si el ID no existe
+        Noticia noticia = repositorioNoticias.findById(id).orElse(null);
+
+        if (noticia == null) {
+            return "redirect:/blog";
+        }
+
+        // --- LÓGICA DE LIKES TAMBIÉN AQUÍ ---
+        // Calculamos los likes también para la vista de detalle
+        noticia.setCantidadMegusta((int) repositorioMeGusta.countByNoticia(noticia));
+
+        if (authentication != null) {
+            User usuario = userService.findByEmail(authentication.getName());
+            List<MeGusta> likes = repositorioMeGusta.findByNoticiaAndUsuario(noticia, usuario);
+            noticia.setLikedByCurrentUser(!likes.isEmpty());
+        }
+        // ------------------------------------
+
+        model.addAttribute("noticia", noticia);
         model.addAttribute("listaComentarios", repositorioCometario.findByNoticia(noticia));
-        // Creo un comentario vacio
+
+        // Preparamos el formulario para nuevo comentario
         Comentario auxComentario = new Comentario();
-        // A ese comentario lo relaciono con la noticia anterior
         auxComentario.setNoticia(noticia);
-        // Envío ese comentario a la vista a traves del modelo para que el usuario lo complete
-        // Llamo al comentario auxComentario y es el nombre que debo usar en la vista
         model.addAttribute("auxComentario", auxComentario);
+
         return "verNoticia";
     }
 
+    // 3. INSERTAR COMENTARIO
     @PostMapping("/comentario/insertar")
     public String insertar(@ModelAttribute Comentario comentario, Authentication authentication) {
 
-        // 1. Poner la fecha actual
+        if (authentication == null) return "redirect:/login";
+
         comentario.setFecha(Date.valueOf(LocalDate.now()));
 
-        // 2. BUSCAR AL USUARIO
-        if (authentication != null) {
-            String email = authentication.getName();
-            User usuario = userService.findByEmail(email);
-            comentario.setUsuario(usuario);
-        }
+        User usuario = userService.findByEmail(authentication.getName());
+        comentario.setUsuario(usuario);
+
         repositorioCometario.save(comentario);
 
         return "redirect:/noticia/" + comentario.getNoticia().getId();
     }
 
-    @GetMapping("/megusta/{idNoticia}")
-    public String megusta(Model model, @PathVariable long idNoticia, Authentication authentication) {
+    // 4. DAR / QUITAR ME GUSTA (NOTICIAS)
+    @GetMapping("/megusta/noticia/{idNoticia}")
+    public String megustaNoticia(@PathVariable long idNoticia, Authentication authentication, HttpServletRequest request) {
+
+        if(authentication == null) return "redirect:/login";
+
         User usuario = userService.findByEmail(authentication.getName());
-        Noticia noticia = repositorioNoticias.findById(idNoticia).get();
+        Noticia noticia = repositorioNoticias.findById(idNoticia).orElse(null);
 
-        ArrayList<MeGusta> auxLista = repositorioMeGusta.findByNoticiaAndUsuario(noticia, usuario);
+        if (noticia != null && usuario != null) {
+            List<MeGusta> auxLista = repositorioMeGusta.findByNoticiaAndUsuario(noticia, usuario);
 
-        if(auxLista.size()>0){
-            repositorioMeGusta.delete(auxLista.get(0));
-        }else {
-            MeGusta meGusta = new MeGusta();
-            meGusta.setNoticia(noticia);
-            meGusta.setUsuario(usuario);
-            repositorioMeGusta.save(meGusta);
+            if(!auxLista.isEmpty()){
+                // Si ya existe, lo borramos (quitar like)
+                repositorioMeGusta.delete(auxLista.get(0));
+            } else {
+                // Si no existe, lo creamos (dar like)
+                MeGusta meGusta = new MeGusta();
+                meGusta.setNoticia(noticia);
+                meGusta.setUsuario(usuario);
+                repositorioMeGusta.save(meGusta);
+            }
         }
-        return "redirect:/blog";
+
+        // Redirige a la página desde donde pulsaste el botón
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/blog");
     }
 }
