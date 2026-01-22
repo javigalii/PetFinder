@@ -1,9 +1,7 @@
 package edu.vedoque.seguridadbase.entity;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.sql.Date;
 
 @Data
@@ -18,7 +16,11 @@ public class Comentario {
     private String contenido;
 
     @ManyToOne
-    Noticia noticia;
+    private Noticia noticia;
 
-    Date fecha;
+    @ManyToOne
+    @JoinColumn(name = "usuario_id")
+    private User usuario;
+
+    private Date fecha;
 }

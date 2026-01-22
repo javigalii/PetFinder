@@ -293,9 +293,15 @@
 
                         <div class="w-100">
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="fw-bold text-white" style="font-size: 0.9rem;">Nombre</span>
+
+                                <span class="fw-bold text-white" style="font-size: 0.9rem;"
+                                      th:text="${comentario.usuario != null ? comentario.usuario.nombrePila : 'Anónimo'}">
+                                    Nombre Usuario
+                                </span>
+
                                 <small class="comment-date">
-                                    <i class="bi bi-clock me-1"></i><span th:text="${comentario.fecha}">Fecha</span>
+                                    <i class="bi bi-clock me-1"></i>
+                                    <span th:text="${comentario.fecha}">Fecha</span>
                                 </small>
                             </div>
                             <p class="comment-text mt-1" th:text="${comentario.contenido}">Contenido</p>

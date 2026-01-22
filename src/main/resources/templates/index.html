@@ -128,7 +128,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navContent">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                <li class="nav-item"><a class="nav-link active" href="/animales/lista">Explorar</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/">Explorar</a></li>
                 <li class="nav-item"><a class="nav-link" href="/blog">Noticias</a></li>
                 <li class="nav-item"><a class="nav-link" href="/perfil">Mi Perfil</a></li>
                 <li class="nav-item"><a class="nav-link" href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Salir</a></li>
@@ -161,7 +161,7 @@
 
                 <div class="offcanvas-body p-0 p-lg-0">
                     <div class="filters-sidebar w-100">
-                        <form action="/animales/lista" method="get">
+                        <form action="/" method="get">
 
                             <div class="mb-4 switch-favoritos">
                                 <div class="form-check form-switch">
@@ -224,7 +224,7 @@
                             <button type="submit" class="btn btn-primary-custom w-100 mb-2 py-2 rounded-3">
                                 <i class="bi bi-funnel-fill me-2"></i>Aplicar Filtros
                             </button>
-                            <a href="/animales/lista" class="btn btn-link w-100 text-decoration-none text-secondary small">Limpiar búsqueda</a>
+                            <a href="/" class="btn btn-link w-100 text-decoration-none text-secondary small">Limpiar búsqueda</a>
                         </form>
                     </div>
                 </div>
@@ -238,13 +238,13 @@
                     <i class="bi bi-heart-break display-1 text-danger opacity-50"></i>
                     <h3 class="mt-3 text-white">No tienes favoritos aún</h3>
                     <p class="mb-4 text-secondary">Dale "Me gusta" a las mascotas para guardarlas aquí.</p>
-                    <a href="/animales/lista" class="btn btn-primary-custom">Explorar mascotas</a>
+                    <a href="/" class="btn btn-primary-custom">Explorar mascotas</a>
                 </div>
                 <div th:unless="${param.favoritos}">
                     <i class="fa-solid fa-magnifying-glass display-1 text-secondary mb-3"></i>
                     <h3 class="text-white">No encontramos resultados</h3>
                     <p class="text-secondary">Prueba a limpiar los filtros para ver todas las mascotas.</p>
-                    <a href="/animales/lista" class="btn btn-primary-custom">Ver todos</a>
+                    <a href="/" class="btn btn-primary-custom">Ver todos</a>
                 </div>
             </div>
 

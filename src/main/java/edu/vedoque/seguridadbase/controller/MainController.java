@@ -78,10 +78,20 @@ public class MainController {
     }
 
     @PostMapping("/comentario/insertar")
-    public String insertar(@ModelAttribute Comentario comentario, Model model) {
+    public String insertar(@ModelAttribute Comentario comentario, Authentication authentication) {
+
+        // 1. Poner la fecha actual
         comentario.setFecha(Date.valueOf(LocalDate.now()));
+
+        // 2. BUSCAR AL USUARIO
+        if (authentication != null) {
+            String email = authentication.getName();
+            User usuario = userService.findByEmail(email);
+            comentario.setUsuario(usuario);
+        }
         repositorioCometario.save(comentario);
-        return "redirect:/noticia/"+comentario.getNoticia().getId();
+
+        return "redirect:/noticia/" + comentario.getNoticia().getId();
     }
 
     @GetMapping("/megusta/{idNoticia}")

@@ -21,7 +21,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/animales")
 public class AnimalController {
 
     @Autowired private RepositorioAnimales repoAnimales;
@@ -30,7 +29,7 @@ public class AnimalController {
     @Autowired private ServicioAnimales servicioAnimales;
 
     // 1. LISTA GENERAL CON TODOS LOS FILTROS NUEVOS
-    @GetMapping("/lista")
+    @GetMapping("/")
     public String lista(Model model,
                         Authentication auth,
                         @RequestParam(required=false) String tipo,
@@ -39,7 +38,7 @@ public class AnimalController {
                         @RequestParam(required=false) String sexo,
                         @RequestParam(required=false) Integer edad,
                         @RequestParam(required=false) Boolean castrado,
-                        @RequestParam(required=false) Boolean favoritos) { // <-- Nuevo filtro favoritos
+                        @RequestParam(required=false) Boolean favoritos) {
 
         User usuario = (auth != null) ? userService.findByEmail(auth.getName()) : null;
 
@@ -77,7 +76,7 @@ public class AnimalController {
         }
 
         model.addAttribute("animales", listaDto);
-        return "animales/lista";
+        return "index";
     }
 
     // 2. DETALLE DEL ANIMAL
@@ -87,12 +86,12 @@ public class AnimalController {
 
         Animal animal = repoAnimales.findById(id).orElse(null);
         if(animal == null) {
-            return "redirect:/animales/lista";
+            return "redirect:/";
         }
 
         AnimalDto animalDto = servicioAnimales.toDto(animal, usuario);
         model.addAttribute("animal", animalDto);
-        return "animales/detalle";
+        return "/detalle";
     }
 
     // 3. DAR/QUITAR ME GUSTA
@@ -119,13 +118,6 @@ public class AnimalController {
 
         // MEJORA: Redirige a la página desde donde viniste (lista o detalle)
         String referer = request.getHeader("Referer");
-        return "redirect:" + (referer != null ? referer : "/animales/lista");
-    }
-
-    // 4. MIS FAVORITOS (Ruta directa antigua, compatible)
-    @GetMapping("/favoritos")
-    public String misFavoritos(Model model, Authentication auth) {
-        // Redirigimos a la lista con el filtro activado para no duplicar código
-        return "redirect:/animales/lista?favoritos=true";
+        return "redirect:" + (referer != null ? referer : "/");
     }
 }

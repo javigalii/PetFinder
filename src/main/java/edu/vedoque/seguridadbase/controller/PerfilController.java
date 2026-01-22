@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Controller
-@RequestMapping("/perfil")
 public class PerfilController {
 
     @Autowired
@@ -33,7 +32,7 @@ public class PerfilController {
     private FileProcessingService fileProcessingService;
 
     // 1. VER MI PERFIL
-    @GetMapping({"", "/"})
+    @GetMapping("/perfil")
     public String verPerfil(Model model, Authentication auth) {
         if(auth == null) return "redirect:/login";
 
@@ -43,7 +42,7 @@ public class PerfilController {
         List<Animal> misAnimales = repoAnimales.findByUsuario(usuario);
         model.addAttribute("misAnimales", misAnimales);
 
-        return "perfil/verPerfil";
+        return "verPerfil";
     }
 
     // 2. IR AL FORMULARIO DE EDICIÓN DE USUARIO
@@ -54,7 +53,7 @@ public class PerfilController {
         User usuario = userService.findByEmail(auth.getName());
         model.addAttribute("usuario", usuario);
 
-        return "perfil/editarPerfil";
+        return "/editarPerfil";
     }
 
     // 3. GUARDAR LOS CAMBIOS DEL USUARIO (CON FOTO)
@@ -99,7 +98,7 @@ public class PerfilController {
 
         userRepository.save(usuarioReal);
 
-        return "redirect:/perfil/";
+        return "redirect:/perfil";
     }
 
     // 4. MOSTRAR FORMULARIO PARA SUBIR ANIMAL
@@ -107,7 +106,7 @@ public class PerfilController {
     public String formularioAnadir(Model model, Authentication auth) {
         if(auth == null) return "redirect:/login";
         model.addAttribute("animal", new Animal());
-        return "perfil/anadirAnimal";
+        return "/anadirAnimal";
     }
 
     // 5. GUARDAR NUEVO ANIMAL (CON SUBIDA DE IMAGEN)
@@ -155,7 +154,7 @@ public class PerfilController {
             repoAnimales.save(animal);
         }
 
-        return "redirect:/perfil/";
+        return "redirect:/perfil";
     }
 
     // 6. BORRAR ANIMAL
@@ -169,7 +168,7 @@ public class PerfilController {
         if (animal != null && animal.getUsuario().getId().equals(usuario.getId())) {
             repoAnimales.delete(animal);
         }
-        return "redirect:/perfil/";
+        return "redirect:/perfil";
     }
 
     // 7. MOSTRAR FORMULARIO DE EDICIÓN DE ANIMAL
@@ -182,9 +181,9 @@ public class PerfilController {
 
         if (animal != null && animal.getUsuario().getId().equals(usuario.getId())) {
             model.addAttribute("animal", animal);
-            return "perfil/editarAnimal";
+            return "/editarAnimal";
         }
-        return "redirect:/perfil/";
+        return "redirect:/perfil";
     }
 
     // 8. ACTUALIZAR ANIMAL (CON SUBIDA DE IMAGEN)
@@ -226,19 +225,19 @@ public class PerfilController {
             repoAnimales.save(animalExistente);
         }
 
-        return "redirect:/perfil/";
+        return "redirect:/perfil";
     }
 
     // 9. VER PERFIL PÚBLICO
     @GetMapping("/usuario/{id}")
     public String verPerfilPublico(@PathVariable Long id, Model model) {
         User usuario = userRepository.findById(id).orElse(null);
-        if (usuario == null) return "redirect:/animales/lista";
+        if (usuario == null) return "redirect:/";
 
         List<Animal> animalesUsuario = repoAnimales.findByUsuario(usuario);
         model.addAttribute("usuarioPublico", usuario);
         model.addAttribute("animalesPublicos", animalesUsuario);
 
-        return "perfil/verPerfilPublico";
+        return "/verPerfilPublico";
     }
 }
