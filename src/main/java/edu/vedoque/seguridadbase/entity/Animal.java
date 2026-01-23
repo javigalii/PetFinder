@@ -19,14 +19,11 @@ public class Animal {
     private String tipo;
     private String raza;
     private String imagenUrl;
-
-    // Campos extra
     private int edad;
     private String localizacion;
     private String sexo;
     private boolean castrado;
 
-    // --- RELACIÓN: Dueño del animal ---
     @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "usuario_id")
@@ -34,6 +31,5 @@ public class Animal {
 
     @OneToMany(mappedBy = "animal", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MeGustaAnimal> likes = new ArrayList<>();
-
 
 }
