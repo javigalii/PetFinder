@@ -3,6 +3,7 @@ package edu.vedoque.seguridadbase.controller;
 
 import edu.vedoque.seguridadbase.entity.Noticia;
 import edu.vedoque.seguridadbase.entity.User;
+import edu.vedoque.seguridadbase.repository.RepositorioMeGusta;
 import edu.vedoque.seguridadbase.repository.RepositorioNoticias;
 import edu.vedoque.seguridadbase.service.FileProcessingService;
 import edu.vedoque.seguridadbase.service.UserService;
@@ -25,6 +26,8 @@ public class ControladorCRUD {
     private FileProcessingService fileProcessingService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private RepositorioMeGusta repoLikes;
 
     @GetMapping("/crud/noticias")
     public String curd(Model model, Authentication authentication) {
@@ -48,26 +51,35 @@ public class ControladorCRUD {
     }
 
     @PostMapping("/crud/noticias/insertar")
-    public String recibeDatosFormulario(@ModelAttribute Noticia noticia, @RequestParam("fichero") MultipartFile fichero) {
-        String redireccion = noticia.getId() == 0? "redirect:/crud/noticias/insertar":"redirect:/crud/noticias";
+    public String recibeDatosFormulario(@ModelAttribute Noticia noticia,
+                                        @RequestParam("fichero") MultipartFile fichero,
+                                        Authentication authentication) { // 1. Añadimos Authentication
+
+        // 2. Recuperamos al usuario actual
+        User autor = userService.findByEmail(authentication.getName());
+
+        // 3. SE LO ASIGNAMOS EXPLÍCITAMENTE A LA NOTICIA ANTES DE GUARDAR
+        noticia.setAutor(autor);
+
+        // 4. (Opcional) Si es una inserción nueva, aseguramos la fecha actual
+        if (noticia.getId() == 0) {
+            noticia.setFecha(Date.valueOf(LocalDate.now()));
+        }
+
         repo.save(noticia);
 
-        // Si el nombre del fichero no está vacío en el formulario...
+        // Lógica de la imagen...
         if(!fichero.isEmpty()) {
-            // Recupero el nombre original del archivo
             String nombreOriginal = fichero.getOriginalFilename();
-            // Me quedo con la extensión, que será la cadena de texto que está después del punto en el nombre de fichero
             String extension = nombreOriginal.substring(nombreOriginal.lastIndexOf(".")+1);
-            // A la imagen que subo le pongo el nombre n-idImagen.extension
             String img = "n-" + noticia.getId() + "." + extension;
-            // Uso el servicio para subir la imagen al servidor y recibo el resultado
-            String resultadoSubida = fileProcessingService.uploadFile(fichero, img);
-            // A la noticia le pongo como imagen el nombre que acabo de generar (n-id.extension)
+            fileProcessingService.uploadFile(fichero, img);
             noticia.setImagen(img);
-            // Vuelvo a guardar la noticia en la base de datos con este nuevo valor de imagen
             repo.save(noticia);
         }
-        return redireccion;
+
+        // Redirigimos siempre a la lista para ver que se ha creado bien
+        return "redirect:/crud/noticias";
     }
 
     @GetMapping("/crud/noticias/modificar/{id}")
@@ -82,13 +94,17 @@ public class ControladorCRUD {
 
     @GetMapping("/crud/noticias/eliminar/{id}")
     public String eliminarNoticia(@PathVariable long id) {
-        // Primero comprobamos si existe la noticia
         Optional<Noticia> noticia = repo.findById(id);
+
         if (noticia.isPresent()) {
-            // Si existe, la eliminamos
-            repo.delete(noticia.get());
+            Noticia n = noticia.get();
+
+            // 1. Borramos los likes asociados (para evitar el error de clave foránea)
+            repoLikes.deleteByNoticia(n);
+
+            // 2. Ahora sí podemos borrar la noticia
+            repo.delete(n);
         }
-        // Redirigimos a la lista de noticias
         return "redirect:/crud/noticias";
     }
 
