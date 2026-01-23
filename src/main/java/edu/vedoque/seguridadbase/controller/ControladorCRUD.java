@@ -3,10 +3,12 @@ package edu.vedoque.seguridadbase.controller;
 
 import edu.vedoque.seguridadbase.entity.Noticia;
 import edu.vedoque.seguridadbase.entity.User;
+import edu.vedoque.seguridadbase.repository.RepositorioCometario;
 import edu.vedoque.seguridadbase.repository.RepositorioMeGusta;
 import edu.vedoque.seguridadbase.repository.RepositorioNoticias;
 import edu.vedoque.seguridadbase.service.FileProcessingService;
 import edu.vedoque.seguridadbase.service.UserService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -28,6 +30,8 @@ public class ControladorCRUD {
     private UserService userService;
     @Autowired
     private RepositorioMeGusta repoLikes;
+    @Autowired
+    private RepositorioCometario repoComentarios;
 
     @GetMapping("/crud/noticias")
     public String curd(Model model, Authentication authentication) {
@@ -93,16 +97,21 @@ public class ControladorCRUD {
     }
 
     @GetMapping("/crud/noticias/eliminar/{id}")
+    @Transactional
     public String eliminarNoticia(@PathVariable long id) {
         Optional<Noticia> noticia = repo.findById(id);
 
         if (noticia.isPresent()) {
             Noticia n = noticia.get();
 
-            // 1. Borramos los likes asociados (para evitar el error de clave foránea)
+            // A. Borramos los likes (esto ya lo tenías)
             repoLikes.deleteByNoticia(n);
 
-            // 2. Ahora sí podemos borrar la noticia
+            // B. Borramos los comentarios (ESTO ES LO QUE FALTABA)
+            // El log indicaba que la tabla 'pf_comentarios' bloqueaba el borrado
+            repoComentarios.deleteByNoticia(n);
+
+            // C. Ahora sí podemos borrar la noticia padre
             repo.delete(n);
         }
         return "redirect:/crud/noticias";

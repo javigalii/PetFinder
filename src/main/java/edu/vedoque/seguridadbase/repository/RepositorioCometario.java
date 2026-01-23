@@ -12,4 +12,5 @@ import java.util.ArrayList;
 public interface RepositorioCometario extends JpaRepository<Comentario,Long> {
     // Devuelve la lista de comentarios que pertenecen a una noticia que se pasa como argumento.
     public ArrayList<Comentario> findByNoticia(Noticia noticia);
+    void deleteByNoticia(Noticia noticia);
 }
