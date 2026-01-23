@@ -91,4 +91,40 @@ public class ControladorCRUD {
         // Redirigimos a la lista de noticias
         return "redirect:/crud/noticias";
     }
+
+    @PostMapping("/crud/noticias/modificar")
+    public String procesarModificacion(@ModelAttribute Noticia noticia,
+                                       @RequestParam("fichero") MultipartFile fichero) {
+
+        // PASO 1: Buscamos la noticia original para no perder el Autor ni la Fecha
+        Optional<Noticia> noticiaExistente = repo.findById(noticia.getId());
+
+        if (noticiaExistente.isPresent()) {
+            Noticia n = noticiaExistente.get();
+
+            // PASO 2: Actualizamos solo los campos editables
+            n.setTitulo(noticia.getTitulo());
+            n.setContenido(noticia.getContenido());
+            // NOTA: No tocamos n.setAutor() ni n.setFecha(), así se mantienen los originales.
+
+            // PASO 3: Gestión del fichero (solo si el usuario subió uno nuevo)
+            if (!fichero.isEmpty()) {
+                // Generamos nombre: n-ID.extension
+                String nombreOriginal = fichero.getOriginalFilename();
+                String extension = nombreOriginal.substring(nombreOriginal.lastIndexOf(".") + 1);
+                String nombreImagen = "n-" + n.getId() + "." + extension;
+
+                // Subimos el archivo usando tu servicio
+                fileProcessingService.uploadFile(fichero, nombreImagen);
+
+                // Actualizamos la ruta en la noticia
+                n.setImagen(nombreImagen);
+            }
+
+            // PASO 4: Guardamos los cambios
+            repo.save(n);
+        }
+
+        return "redirect:/crud/noticias";
+    }
 }
