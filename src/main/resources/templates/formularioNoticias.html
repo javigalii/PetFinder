@@ -191,11 +191,13 @@
             Asegúrate de que la imagen sea en formato JPG o PNG para una mejor visualización.
         </div>
 
-        <form th:object="${noticia}"  th:href="@{/blog}" method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data"
+              th:object="${noticia}"
+              th:action="@{${noticia.id != 0 ? '/crud/noticias/modificar' : '/crud/noticias/insertar'}}">
 
             <input type="hidden" th:field="*{id}">
-            <input type="hidden" th:field="*{autor}">
-            <input type="hidden" th:field="*{imagen}" id="imagen">
+
+            <input type="hidden" th:field="*{imagen}">
 
             <div class="mb-4">
                 <label class="form-label">Título de la noticia</label>
@@ -213,8 +215,10 @@
                 <div class="col-md-7">
                     <label class="form-label">Imagen de cabecera</label>
                     <input type="file" name="fichero" class="form-control">
-                    <small class="text-muted mt-1 d-block" th:if="*{imagen != null}"
-                           th:text="'Archivo actual: ' + *{imagen}"></small>
+
+                    <small class="text-muted mt-1 d-block" th:if="*{imagen != null}">
+                        Archivo actual: <span th:text="*{imagen}"></span>
+                    </small>
                 </div>
                 <div class="col-md-5">
                     <label class="form-label">Fecha de publicación</label>
@@ -225,7 +229,7 @@
             <hr class="my-4" style="border-color: var(--border-color);">
 
             <div class="d-flex justify-content-end gap-3 align-items-center">
-                <a th:href="@{/blog}" class="btn-cancel">Cancelar</a>
+                <a th:href="@{/crud/noticias}" class="btn-cancel">Cancelar</a>
                 <button type="submit" class="btn-submit">
                     Guardar Publicación <i class="bi bi-check-lg ms-1"></i>
                 </button>
