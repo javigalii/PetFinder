@@ -30,18 +30,15 @@ public class PerfilController {
     @Autowired
     private FileProcessingService fileProcessingService;
 
-    // 1. VER MI PERFIL
     @GetMapping("/perfil")
     public String verPerfil(Model model, Authentication auth) {
         if(auth == null) return "redirect:/login";
 
         User usuario = userService.findByEmail(auth.getName());
 
-        // --- PROTECCIÓN ANTI-ERROR (Si borras la BD y tienes cookie vieja) ---
         if (usuario == null) {
             return "redirect:/logout";
         }
-        // --------------------------------------------------------------------
 
         model.addAttribute("usuario", usuario);
 
@@ -51,7 +48,6 @@ public class PerfilController {
         return "verPerfil";
     }
 
-    // 2. IR AL FORMULARIO DE EDICIÓN DE USUARIO
     @GetMapping("/editar")
     public String editarPerfil(Model model, Authentication auth) {
         if(auth == null) return "redirect:/login";
@@ -59,10 +55,9 @@ public class PerfilController {
         User usuario = userService.findByEmail(auth.getName());
         model.addAttribute("usuario", usuario);
 
-        return "editarPerfil"; // Quitamos la barra inicial (opcional pero recomendable)
+        return "editarPerfil";
     }
 
-    // 3. GUARDAR LOS CAMBIOS DEL USUARIO
     @PostMapping("/guardar")
     public String guardarPerfil(@ModelAttribute User usuarioForm,
                                 @RequestParam("fichero") MultipartFile fichero,
@@ -70,7 +65,7 @@ public class PerfilController {
         if(auth == null) return "redirect:/login";
 
         User usuarioReal = userService.findByEmail(auth.getName());
-        if(usuarioReal == null) return "redirect:/logout"; // Protección extra
+        if(usuarioReal == null) return "redirect:/logout";
 
         usuarioReal.setNombrePila(usuarioForm.getNombrePila());
         usuarioReal.setLocalizacion(usuarioForm.getLocalizacion());
@@ -91,12 +86,9 @@ public class PerfilController {
             }
         }
         userRepository.save(usuarioReal);
-
-        // CORRECCIÓN IMPORTANTE: Redirigimos, no mostramos la vista directamente
         return "redirect:/perfil";
     }
 
-    // 4. MOSTRAR FORMULARIO PARA SUBIR ANIMAL
     @GetMapping("/anadir-animal")
     public String formularioAnadir(Model model, Authentication auth) {
         if(auth == null) return "redirect:/login";
@@ -104,7 +96,6 @@ public class PerfilController {
         return "anadirAnimal";
     }
 
-    // 5. GUARDAR NUEVO ANIMAL
     @PostMapping("/guardar-animal")
     public String guardarNuevoAnimal(@ModelAttribute Animal animal,
                                      @RequestParam("fichero") MultipartFile fichero,
@@ -135,11 +126,9 @@ public class PerfilController {
             repoAnimales.save(animal);
         }
 
-        // CORRECCIÓN IMPORTANTE
         return "redirect:/perfil";
     }
 
-    // 6. BORRAR ANIMAL
     @GetMapping("/eliminar-animal/{id}")
     public String eliminarAnimal(@PathVariable Long id, Authentication auth) {
         if(auth == null) return "redirect:/login";
@@ -150,11 +139,9 @@ public class PerfilController {
         if (animal != null && usuario != null && animal.getUsuario().getId().equals(usuario.getId())) {
             repoAnimales.delete(animal);
         }
-        // CORRECCIÓN IMPORTANTE
         return "redirect:/perfil";
     }
 
-    // 7. MOSTRAR FORMULARIO DE EDICIÓN DE ANIMAL
     @GetMapping("/editar-animal/{id}")
     public String formularioEditar(@PathVariable Long id, Model model, Authentication auth) {
         if(auth == null) return "redirect:/login";
@@ -169,7 +156,6 @@ public class PerfilController {
         return "redirect:/perfil";
     }
 
-    // 8. ACTUALIZAR ANIMAL
     @PostMapping("/actualizar-animal")
     public String actualizarAnimal(@ModelAttribute Animal animalForm,
                                    @RequestParam("fichero") MultipartFile fichero,
@@ -201,11 +187,9 @@ public class PerfilController {
             repoAnimales.save(animalExistente);
         }
 
-        // CORRECCIÓN IMPORTANTE
         return "redirect:/perfil";
     }
-
-    // 9. VER PERFIL PÚBLICO
+    
     @GetMapping("/usuario/{id}")
     public String verPerfilPublico(@PathVariable Long id, Model model) {
         User usuario = userRepository.findById(id).orElse(null);
